@@ -1,7 +1,6 @@
 import logging
-from pathlib import Path
-from typing import Union
 
+from sklearn.model_selection import GridSearchCV
 from sklearn.svm import SVC
 
 from .dataset import Dataset
@@ -9,9 +8,9 @@ from .dataset import LibsvmDataset
 from .model import Model
 from .utils import AttributeDict
 
-DEFAULT_DATA_FOLDER = Path('dataset')
-
-logging.basicConfig(format='%(asctime)s %(message)s', datefmt='%m/%d/%Y %I:%M:%S %p', level=logging.INFO)
+logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
+                    datefmt='%m/%d/%Y %I:%M:%S %p',
+                    level=logging.INFO)
 
 _datasets = AttributeDict()
 _datasets.iris = LibsvmDataset('iris.scale')
@@ -26,17 +25,18 @@ _datasets.news20 = LibsvmDataset('news20.scale.bz2', 'news20.t.scale.bz2')
 _models = AttributeDict()
 _models.svm = SVC
 
+_selection_methods = AttributeDict()
+_selection_methods.grid_search_cv = GridSearchCV
 
-def load_dataset(dataset: str,
-                 data_folder: Union[str, Path] = DEFAULT_DATA_FOLDER,
-                 test_size: Union[int, float, None] = None):
-    """Load dataset by its name."""
+
+def get_dataset(dataset: str) -> Dataset:
+    """Get dataset by its name."""
     dataset = dataset.lower()
 
     if dataset not in _datasets:
         raise ValueError(f'Dataset {dataset} does not exist!')
 
-    return _datasets[dataset].load(data_folder, test_size)
+    return _datasets[dataset]
 
 
 def get_model(model: str) -> Model.__class__:
@@ -49,4 +49,14 @@ def get_model(model: str) -> Model.__class__:
     return _models[model]
 
 
-__all__ = ['Dataset', 'Model', 'load_dataset', 'get_model']
+def get_selection_method(model_selection: str):
+    """Get model selection method by its name."""
+    model_selection = model_selection.lower()
+
+    if model_selection not in _selection_methods:
+        raise ValueError(f'Selection method {model_selection} does not exist!')
+
+    return _selection_methods[model_selection]
+
+
+__all__ = ['Dataset', 'Model', 'get_dataset', 'get_model', 'get_selection_method']
