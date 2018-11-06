@@ -6,10 +6,7 @@ from typing import Union
 from sklearn.datasets import load_svmlight_file
 from sklearn.model_selection import train_test_split
 
-from .utils import AttributeDict
 from .utils import download_file
-
-DEFAULT_DATA_FOLDER = Path('dataset')
 
 
 class Dataset(ABC):
@@ -39,7 +36,7 @@ class LibsvmDataset(Dataset):
         self.test = test
         self.logger = logging.getLogger(self.__class__.__name__)
 
-    def load(self, data_folder=DEFAULT_DATA_FOLDER, test_size=None):
+    def load(self, data_folder, test_size=None):
         if not isinstance(data_folder, Path):
             data_folder = Path(data_folder)
 
@@ -74,14 +71,3 @@ class LibsvmDataset(Dataset):
                                                                 stratify=y_train)
 
         return X_train.toarray(), X_test.toarray(), y_train, y_test
-
-
-datasets = AttributeDict()
-datasets.iris = LibsvmDataset('iris.scale')
-datasets.wine = LibsvmDataset('wine.scale')
-datasets.glass = LibsvmDataset('glass.scale')
-datasets.aloi = LibsvmDataset('aloi.scale.bz2')
-datasets.cifar10 = LibsvmDataset('cifar10.bz2', 'cifar10.t.bz2')
-datasets.letter = LibsvmDataset('letter.scale', 'letter.scale.t')
-datasets.mnist = LibsvmDataset('mnist.scale.bz2', 'mnist.scale.t.bz2')
-datasets.news20 = LibsvmDataset('news20.scale.bz2', 'news20.t.scale.bz2')
