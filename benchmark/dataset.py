@@ -17,7 +17,7 @@ class Dataset(ABC):
         """Load the dataset.
 
         :param data_folder: A path to the folder with datasets.
-        :param test_size: Represents the proportion of the dataset to include in the train split.
+        :param test_size: Represents the proportion of the dataset to include in the test split.
         :return: X_train, X_test, y_train, y_test
         """
         pass

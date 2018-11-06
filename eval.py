@@ -3,7 +3,6 @@ import json
 import logging
 from datetime import datetime
 from pathlib import Path
-from typing import Union
 
 from benchmark import get_dataset
 from benchmark import get_model
@@ -18,8 +17,8 @@ parser = argparse.ArgumentParser('Evaluate the given model on the specified data
 parser.add_argument('--model', type=str, required=True, help='model to evaluate')
 parser.add_argument('--params', type=str, default='', help='parameters of the model in json format')
 parser.add_argument('--dataset', type=str, required=True, help='dataset name')
-parser.add_argument('--test_size', type=Union[int, float], default=None,
-                    help='represents the proportion of the dataset to include in the train split')
+parser.add_argument('--test_size', type=float, default=None,
+                    help='represents the proportion of the dataset to include in the test split')
 parser.add_argument('--selection', type=str, default=None, help='method of hyperparameter tuning')
 parser.add_argument('--selection_params', type=str, default='',
                     help='parameters of the selection method in json format')
