@@ -9,9 +9,11 @@ from sklearn.naive_bayes import GaussianNB
 from sklearn.neighbors import KNeighborsClassifier
 from sklearn.svm import SVC
 from sklearn.tree import DecisionTreeClassifier
+from sklearn_extensions.extreme_learning_machines import ELMClassifier
 
 from .dataset import Dataset
 from .dataset import LibsvmDataset
+from .model import FMCBoosting
 from .model import Model
 from .utils import AttributeDict
 
@@ -37,6 +39,8 @@ _models.rfc = RandomForestClassifier
 _models.dtc = DecisionTreeClassifier
 _models.one_vs_rest_gbc = lambda *args, **kwargs: OneVsRestClassifier(GradientBoostingClassifier(*args, **kwargs))
 _models.one_vs_one_gbc = lambda *args, **kwargs: OneVsOneClassifier(GradientBoostingClassifier(*args, **kwargs))
+_models.elm = ELMClassifier
+_models.fmcb = FMCBoosting
 
 _selection_methods = AttributeDict()
 _selection_methods.grid_search_cv = GridSearchCV
