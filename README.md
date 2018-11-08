@@ -55,7 +55,7 @@ You can specify some parameters of the model manually: <br>
 If the dataset does not have separate test part, you can use `test_size` option to specify the proportion of the dataset to include in the test.
 
 ### Example 3
-It possible to use [grid search cross-validation](http://scikit-learn.org/stable/modules/generated/sklearn.model_selection.GridSearchCV.html) to tune hyperparameters:
+It's possible to use [grid search cross-validation](http://scikit-learn.org/stable/modules/generated/sklearn.model_selection.GridSearchCV.html) to tune hyperparameters:
 ```
 python eval.py --model svm --params "{'gamma': 'auto'}" --selection grid_search_cv --selection_params "{'cv': 3}" --param_grid "{'C': [5, 10, 20]}" --dataset letter
 ```
