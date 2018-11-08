@@ -25,7 +25,7 @@ To train `svm` model with default parameters on `letter` dataset, you can run th
 `python eval.py --model svm --dataset letter` 
 
 ```
-11/06/2018 07:03:05 PM - eval - INFO - Use svm model
+11/06/2018 07:03:05 PM - eval - INFO - Model: svm
 11/06/2018 07:03:05 PM - eval - INFO - Model parameters: default
 11/06/2018 07:03:05 PM - eval - INFO - Loading letter dataset...
 11/06/2018 07:03:05 PM - eval - INFO - Train size:	15000
@@ -41,7 +41,7 @@ You can specify some parameters of the model manually: <br>
 `python eval.py --model svm --params "{'gamma': 'auto', 'C': 10}" --dataset letter`
 
 ```
-11/06/2018 07:05:06 PM - eval - INFO - Use svm model
+11/06/2018 07:05:06 PM - eval - INFO - Model: svm
 11/06/2018 07:05:06 PM - eval - INFO - Model parameters: {'gamma': 'auto', 'C': 10}
 11/06/2018 07:05:06 PM - eval - INFO - Loading letter dataset...
 11/06/2018 07:05:06 PM - eval - INFO - Train size:	15000
@@ -61,8 +61,9 @@ python eval.py --model svm --params "{'gamma': 'auto'}" --selection grid_search_
 ```
 
 ```
-11/06/2018 08:04:30 PM - eval - INFO - Use svm model
+11/06/2018 08:04:30 PM - eval - INFO - Model: svm
 11/06/2018 08:04:30 PM - eval - INFO - Model parameters: {'gamma': 'auto'}
+11/06/2018 08:04:30 PM - eval - INFO - Selection method: grid_search_cv
 11/06/2018 08:04:30 PM - eval - INFO - Selection method parameters: {'cv': 3}
 11/06/2018 08:04:30 PM - eval - INFO - Parameters grid: {'C': [5, 10, 20]}
 11/06/2018 08:04:30 PM - eval - INFO - Loading letter dataset...
@@ -81,12 +82,21 @@ python eval.py --model svm --params "{'gamma': 'auto'}" --selection grid_search_
 11/06/2018 08:05:31 PM - eval - INFO - Test score:	0.906
 ```
 
-Also you can use `range` in `param_grid`: <br>
-`--param_grid "{'C': 'range(1, 10)'}"`
+Also you can use `range`, `np.linspace` in `param_grid`: <br>
+`--param_grid "{'C': 'range(1, 10)'}"` <br>
+`--param_grid "{'C': '2 ** np.linspace(8, 11, 15)'}"`
 
 ## Models
 Currently we support the following models:
-* [C-Support Vector Classification](http://scikit-learn.org/stable/modules/generated/sklearn.svm.SVC.html)
+* `svm` - [C-Support Vector Classification](http://scikit-learn.org/stable/modules/generated/sklearn.svm.SVC.html)
+* `gnb` - [Gaussian Naive Bayes](https://scikit-learn.org/stable/modules/generated/sklearn.naive_bayes.GaussianNB.html)
+* `knc` - [K-Neighbors Classifier](https://scikit-learn.org/stable/modules/generated/sklearn.neighbors.KNeighborsClassifier.html) 
+* `rfc` - [Random Forest Classifier](https://scikit-learn.org/stable/modules/generated/sklearn.ensemble.RandomForestClassifier.html)
+* `dtc` - [Decision Tree Classifier](https://scikit-learn.org/stable/modules/generated/sklearn.tree.DecisionTreeClassifier.html)
+* `one_vs_one_gbc` - [One vs. One](https://scikit-learn.org/stable/modules/generated/sklearn.multiclass.OneVsOneClassifier.html) [Gradient Boosting Classifier](https://scikit-learn.org/stable/modules/generated/sklearn.ensemble.GradientBoostingClassifier.html)
+* `one_vs_rest_gbc` - [One vs. Rest](https://scikit-learn.org/stable/modules/generated/sklearn.multiclass.OneVsRestClassifier.html) [Gradient Boosting Classifier](https://scikit-learn.org/stable/modules/generated/sklearn.ensemble.GradientBoostingClassifier.html)
+* `elm` - [ELM Classifier](https://github.com/dclambert/Python-ELM)
+* `fmcb` - [Factorized MultiClass Boosting](https://github.com/rebryk/mcc-benchmark/blob/master/benchmark/model/fmcb.py)
 
 ## Datasets
 Currently we support some multiclass classification datasets from [LIBSVM](https://www.csie.ntu.edu.tw/~cjlin/libsvmtools/datasets/multiclass.html):
