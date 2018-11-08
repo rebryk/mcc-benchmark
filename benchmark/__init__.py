@@ -1,7 +1,14 @@
 import logging
 
+from sklearn.ensemble import GradientBoostingClassifier
+from sklearn.ensemble import RandomForestClassifier
 from sklearn.model_selection import GridSearchCV
+from sklearn.multiclass import OneVsOneClassifier
+from sklearn.multiclass import OneVsRestClassifier
+from sklearn.naive_bayes import GaussianNB
+from sklearn.neighbors import KNeighborsClassifier
 from sklearn.svm import SVC
+from sklearn.tree import DecisionTreeClassifier
 
 from .dataset import Dataset
 from .dataset import LibsvmDataset
@@ -24,6 +31,12 @@ _datasets.news20 = LibsvmDataset('news20.scale.bz2', 'news20.t.scale.bz2')
 
 _models = AttributeDict()
 _models.svm = SVC
+_models.gnb = GaussianNB
+_models.knc = KNeighborsClassifier
+_models.rfc = RandomForestClassifier
+_models.dtc = DecisionTreeClassifier
+_models.one_vs_rest_gbc = lambda *args, **kwargs: OneVsRestClassifier(GradientBoostingClassifier(*args, **kwargs))
+_models.one_vs_one_gbc = lambda *args, **kwargs: OneVsOneClassifier(GradientBoostingClassifier(*args, **kwargs))
 
 _selection_methods = AttributeDict()
 _selection_methods.grid_search_cv = GridSearchCV

@@ -1,6 +1,7 @@
 import argparse
 import json
 import logging
+import numpy as np
 from datetime import datetime
 from pathlib import Path
 
@@ -55,15 +56,18 @@ if __name__ == '__main__':
     file_name = f'{args.model} {args.dataset} {current_date}.log'
     logger.addHandler(create_log_handler(file_name))
 
-    logger.info(f'Use {args.model} model')
     model_class = get_model(args.model)
+    logger.info(f'Model: {args.model}')
+
     params = parse_params(args.params)
     logger.info(f'Model parameters: {params if params else "default"}')
+
     model = model_class(**params)
     selection = None
 
     if args.selection is not None:
         selection_class = get_selection_method(args.selection)
+        logger.info(f'Selection method: {args.selection}')
 
         selection_params = parse_params(args.selection_params)
         logger.info(f'Selection method parameters: {selection_params if selection_params else "default"}')
