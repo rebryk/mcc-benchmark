@@ -39,6 +39,8 @@ _models.rfc = RandomForestClassifier
 _models.dtc = DecisionTreeClassifier
 _models.one_vs_rest_gbc = lambda *args, **kwargs: OneVsRestClassifier(GradientBoostingClassifier(*args, **kwargs))
 _models.one_vs_one_gbc = lambda *args, **kwargs: OneVsOneClassifier(GradientBoostingClassifier(*args, **kwargs))
+_models.one_vs_rest_cat = lambda *args, **kwargs: OneVsRestClassifier(CatBoostClassifier(*args, **kwargs))
+_models.one_vs_one_cat = lambda *args, **kwargs: OneVsOneClassifier(CatBoostClassifier(*args, **kwargs))
 _models.elm = ELMClassifier
 _models.fmcb = FMCBoosting
 
