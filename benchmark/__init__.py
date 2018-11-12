@@ -1,5 +1,6 @@
 import logging
 
+from catboost import CatBoostClassifier
 from sklearn.ensemble import GradientBoostingClassifier
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.model_selection import GridSearchCV
@@ -26,9 +27,8 @@ _datasets.iris = LibsvmDataset('iris.scale')
 _datasets.wine = LibsvmDataset('wine.scale')
 _datasets.glass = LibsvmDataset('glass.scale')
 _datasets.aloi = LibsvmDataset('aloi.scale.bz2')
-_datasets.cifar10 = LibsvmDataset('cifar10.bz2', 'cifar10.t.bz2')
+_datasets.segment = LibsvmDataset('segment.scale')
 _datasets.letter = LibsvmDataset('letter.scale', 'letter.scale.t')
-_datasets.mnist = LibsvmDataset('mnist.scale.bz2', 'mnist.scale.t.bz2')
 _datasets.news20 = LibsvmDataset('news20.scale.bz2', 'news20.t.scale.bz2')
 
 _models = AttributeDict()

@@ -36,7 +36,7 @@ class LibsvmDataset(Dataset):
         self.test = test
         self.logger = logging.getLogger(self.__class__.__name__)
 
-    def load(self, data_folder, test_size=None):
+    def load(self, data_folder: Union[Path, str], test_size: float = None):
         if not isinstance(data_folder, Path):
             data_folder = Path(data_folder)
 
