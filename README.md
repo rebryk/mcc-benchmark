@@ -95,6 +95,8 @@ Currently we support the following models:
 * `dtc` - [Decision Tree Classifier](https://scikit-learn.org/stable/modules/generated/sklearn.tree.DecisionTreeClassifier.html)
 * `one_vs_one_gbc` - [One vs. One](https://scikit-learn.org/stable/modules/generated/sklearn.multiclass.OneVsOneClassifier.html) [Gradient Boosting Classifier](https://scikit-learn.org/stable/modules/generated/sklearn.ensemble.GradientBoostingClassifier.html)
 * `one_vs_rest_gbc` - [One vs. Rest](https://scikit-learn.org/stable/modules/generated/sklearn.multiclass.OneVsRestClassifier.html) [Gradient Boosting Classifier](https://scikit-learn.org/stable/modules/generated/sklearn.ensemble.GradientBoostingClassifier.html)
+* `one_vs_one_cat` - [One vs. One](https://scikit-learn.org/stable/modules/generated/sklearn.multiclass.OneVsOneClassifier.html) [CatBoost Classifier](https://tech.yandex.com/catboost/doc/dg/concepts/python-reference_catboostclassifier-docpage/)
+* `one_vs_rest_cat` - [One vs. Rest](https://scikit-learn.org/stable/modules/generated/sklearn.multiclass.OneVsRestClassifier.html) [CatBoost Classifier](https://tech.yandex.com/catboost/doc/dg/concepts/python-reference_catboostclassifier-docpage/)
 * `elm` - [ELM Classifier](https://github.com/dclambert/Python-ELM)
 * `fmcb` - [Factorized MultiClass Boosting](https://github.com/rebryk/mcc-benchmark/blob/master/benchmark/model/fmcb.py)
 
@@ -104,9 +106,8 @@ Currently we support some multiclass classification datasets from [LIBSVM](https
 * `wine`
 * `glass`
 * `aloi`
-* `cifar10`
 * `letter`
-* `mnist`
+* `segment`
 * `new20`
 
 ## License
