@@ -97,6 +97,8 @@ Currently we support the following models:
 * `one_vs_rest_gbc` - [One vs. Rest](https://scikit-learn.org/stable/modules/generated/sklearn.multiclass.OneVsRestClassifier.html) [Gradient Boosting Classifier](https://scikit-learn.org/stable/modules/generated/sklearn.ensemble.GradientBoostingClassifier.html)
 * `one_vs_one_cat` - [One vs. One](https://scikit-learn.org/stable/modules/generated/sklearn.multiclass.OneVsOneClassifier.html) [CatBoost Classifier](https://tech.yandex.com/catboost/doc/dg/concepts/python-reference_catboostclassifier-docpage/)
 * `one_vs_rest_cat` - [One vs. Rest](https://scikit-learn.org/stable/modules/generated/sklearn.multiclass.OneVsRestClassifier.html) [CatBoost Classifier](https://tech.yandex.com/catboost/doc/dg/concepts/python-reference_catboostclassifier-docpage/)
+* `one_vs_one_xgb` - [One vs. One](https://scikit-learn.org/stable/modules/generated/sklearn.multiclass.OneVsOneClassifier.html) [XGBoost Classifier](https://xgboost.readthedocs.io/en/latest/python/python_api.html#xgboost.XGBClassifier/)
+* `one_vs_rest_xgb` - [One vs. Rest](https://scikit-learn.org/stable/modules/generated/sklearn.multiclass.OneVsRestClassifier.html) [XGBoost Classifier](https://xgboost.readthedocs.io/en/latest/python/python_api.html#xgboost.XGBClassifier/)
 * `elm` - [ELM Classifier](https://github.com/dclambert/Python-ELM)
 * `fmcb` - [Factorized MultiClass Boosting](https://github.com/rebryk/mcc-benchmark/blob/master/benchmark/model/fmcb.py)
 

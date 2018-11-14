@@ -11,6 +11,7 @@ from sklearn.neighbors import KNeighborsClassifier
 from sklearn.svm import SVC
 from sklearn.tree import DecisionTreeClassifier
 from sklearn_extensions.extreme_learning_machines import ELMClassifier
+from xgboost import XGBClassifier
 
 from .dataset import Dataset
 from .dataset import LibsvmDataset
@@ -41,6 +42,8 @@ _models.one_vs_rest_gbc = lambda *args, **kwargs: OneVsRestClassifier(GradientBo
 _models.one_vs_one_gbc = lambda *args, **kwargs: OneVsOneClassifier(GradientBoostingClassifier(*args, **kwargs))
 _models.one_vs_rest_cat = lambda *args, **kwargs: OneVsRestClassifier(CatBoostClassifier(*args, **kwargs))
 _models.one_vs_one_cat = lambda *args, **kwargs: OneVsOneClassifier(CatBoostClassifier(*args, **kwargs))
+_models.one_vs_rest_xgb = lambda *args, **kwargs: OneVsRestClassifier(XGBClassifier(*args, **kwargs))
+_models.one_vs_one_xgb = lambda *args, **kwargs: OneVsOneClassifier(XGBClassifier(*args, **kwargs))
 _models.elm = ELMClassifier
 _models.fmcb = FMCBoosting
 
