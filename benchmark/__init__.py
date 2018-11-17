@@ -38,6 +38,7 @@ _models.gnb = GaussianNB
 _models.knc = KNeighborsClassifier
 _models.rfc = RandomForestClassifier
 _models.dtc = DecisionTreeClassifier
+_models.cat = CatBoostClassifier
 _models.one_vs_rest_gbc = lambda *args, **kwargs: OneVsRestClassifier(GradientBoostingClassifier(*args, **kwargs))
 _models.one_vs_one_gbc = lambda *args, **kwargs: OneVsOneClassifier(GradientBoostingClassifier(*args, **kwargs))
 _models.one_vs_rest_cat = lambda *args, **kwargs: OneVsRestClassifier(CatBoostClassifier(*args, **kwargs))

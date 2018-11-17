@@ -15,7 +15,9 @@ class FMCBoosting(Model):
                  gamma: float = 100,
                  max_iter: int = 2000,
                  depth: int = 5,
-                 n_bins: int = 32):
+                 n_bins: int = 32,
+                 ensemble_size: int = 1,
+                 verbose: bool = False):
         """Factorized MultiClass Boosting
 
         :param path: A path to jmll jar file with FMCBoosting.
@@ -25,6 +27,8 @@ class FMCBoosting(Model):
         :param max_iter: Max iterations count for StochasticALS.
         :param depth: The maximum depth of the weak tree.
         :param n_bins: Bin factor.
+        :param ensemble_size: The size of weak ensemble.
+        :param verbose: Verbose output.
         """
         self.path = path
         self.n_iter = n_iter
@@ -33,6 +37,8 @@ class FMCBoosting(Model):
         self.max_iter = max_iter
         self.depth = depth
         self.n_bins = n_bins
+        self.ensemble_size = ensemble_size
+        self.verbose = verbose
 
         tmp_folder = Path().absolute() / 'tmp'
 
@@ -53,6 +59,7 @@ class FMCBoosting(Model):
         self._remove_files([self._train_path, self._train_pred_path, self._model_path])
         self._save_data_to_tsv(X, y, self._train_path)
 
+        out = subprocess.DEVNULL if not self.verbose else None
         subprocess.run(['java', '-jar', self.path,
                         '--model', str(self._model_path),
                         '--n_iter', str(self.n_iter),
@@ -61,8 +68,9 @@ class FMCBoosting(Model):
                         '--max_iter', str(self.max_iter),
                         '--depth', str(self.depth),
                         '--n_bins', str(self.n_bins),
+                        '--ensemble_size', str(self.ensemble_size),
                         '--train', str(self._train_path),
-                        '--train_pred', str(self._train_pred_path)], stdout=subprocess.DEVNULL)
+                        '--train_pred', str(self._train_pred_path)], stdout=out)
 
         return self
 
@@ -75,10 +83,11 @@ class FMCBoosting(Model):
         fake_y = np.zeros(len(X))
         self._save_data_to_tsv(X, fake_y, self._test_path)
 
+        out = subprocess.DEVNULL if not self.verbose else None
         subprocess.run(['java', '-jar', self.path,
                         '--model', str(self._model_path),
                         '--test', str(self._test_path),
-                        '--test_pred', str(self._test_pred_path)], stdout=subprocess.DEVNULL)
+                        '--test_pred', str(self._test_pred_path)], stdout=out)
 
         return self._read_prediction(self._test_pred_path)
 
