@@ -3,6 +3,7 @@ from abc import ABC, abstractmethod
 from pathlib import Path
 from typing import Union
 
+import numpy as np
 from sklearn.datasets import load_svmlight_file
 from sklearn.model_selection import train_test_split
 
@@ -31,10 +32,32 @@ class LibsvmDataset(Dataset):
 
     SOURCE = 'https://www.csie.ntu.edu.tw/~cjlin/libsvmtools/datasets/multiclass/'
 
-    def __init__(self, train: str, test: str = None):
+    def __init__(self, train: str, test: str = None, n_classes: int = None):
         self.train = train
         self.test = test
+        self.n_classes = n_classes
         self.logger = logging.getLogger(self.__class__.__name__)
+
+    @staticmethod
+    def _select_classes(y: np.ndarray, n_classes: int):
+        np.random.seed(0)
+        classes = np.unique(y)
+
+        if n_classes is None:
+            return classes
+
+        if len(classes) < n_classes:
+            raise RuntimeError(f'Dataset contains just {len(classes)} unique labels!')
+
+        return np.random.choice(classes, size=n_classes, replace=False)
+
+    @staticmethod
+    def _reduce_classes(X: np.ndarray, y: np.ndarray, classes: np.ndarray):
+        mask = np.isin(y, classes)
+        X, y = X[mask], y[mask]
+        mapping = {y: i for i, y in enumerate(classes)}
+        y = np.array([mapping[it] for it in y])
+        return X, y
 
     def load(self, data_folder: Union[Path, str], test_size: float = None):
         if not isinstance(data_folder, Path):
@@ -60,14 +83,19 @@ class LibsvmDataset(Dataset):
             download_file(url, test)
 
         X_train, y_train = load_svmlight_file(str(train))
+        X_train, y_train = X_train.toarray(), y_train.astype(np.int32)
+
+        classes = self._select_classes(y_train, self.n_classes)
+        X_train, y_train = self._reduce_classes(X_train, y_train, classes)
 
         if test:
             X_test, y_test = load_svmlight_file(str(test))
+            X_test, y_test = X_test.toarray(), y_test.astype(np.int32)
+            X_test, y_test = self._reduce_classes(X_test, y_test, classes)
         else:
             X_train, X_test, y_train, y_test = train_test_split(X_train,
                                                                 y_train,
                                                                 test_size=test_size,
                                                                 random_state=0,
                                                                 stratify=y_train)
-
-        return X_train.toarray(), X_test.toarray(), y_train, y_test
+        return X_train, X_test, y_train, y_test
