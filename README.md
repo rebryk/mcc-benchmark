@@ -93,12 +93,10 @@ Currently we support the following models:
 * `knc` - [K-Neighbors Classifier](https://scikit-learn.org/stable/modules/generated/sklearn.neighbors.KNeighborsClassifier.html) 
 * `rfc` - [Random Forest Classifier](https://scikit-learn.org/stable/modules/generated/sklearn.ensemble.RandomForestClassifier.html)
 * `dtc` - [Decision Tree Classifier](https://scikit-learn.org/stable/modules/generated/sklearn.tree.DecisionTreeClassifier.html)
-* `one_vs_one_gbc` - [One vs. One](https://scikit-learn.org/stable/modules/generated/sklearn.multiclass.OneVsOneClassifier.html) [Gradient Boosting Classifier](https://scikit-learn.org/stable/modules/generated/sklearn.ensemble.GradientBoostingClassifier.html)
 * `one_vs_rest_gbc` - [One vs. Rest](https://scikit-learn.org/stable/modules/generated/sklearn.multiclass.OneVsRestClassifier.html) [Gradient Boosting Classifier](https://scikit-learn.org/stable/modules/generated/sklearn.ensemble.GradientBoostingClassifier.html)
-* `one_vs_one_cat` - [One vs. One](https://scikit-learn.org/stable/modules/generated/sklearn.multiclass.OneVsOneClassifier.html) [CatBoost Classifier](https://tech.yandex.com/catboost/doc/dg/concepts/python-reference_catboostclassifier-docpage/)
 * `one_vs_rest_cat` - [One vs. Rest](https://scikit-learn.org/stable/modules/generated/sklearn.multiclass.OneVsRestClassifier.html) [CatBoost Classifier](https://tech.yandex.com/catboost/doc/dg/concepts/python-reference_catboostclassifier-docpage/)
-* `one_vs_one_xgb` - [One vs. One](https://scikit-learn.org/stable/modules/generated/sklearn.multiclass.OneVsOneClassifier.html) [XGBoost Classifier](https://xgboost.readthedocs.io/en/latest/python/python_api.html#xgboost.XGBClassifier/)
 * `one_vs_rest_xgb` - [One vs. Rest](https://scikit-learn.org/stable/modules/generated/sklearn.multiclass.OneVsRestClassifier.html) [XGBoost Classifier](https://xgboost.readthedocs.io/en/latest/python/python_api.html#xgboost.XGBClassifier/)
+* `one_vs_rest_lgbm` - [One vs. Rest](https://scikit-learn.org/stable/modules/generated/sklearn.multiclass.OneVsRestClassifier.html) [LightGBM Classifier](https://lightgbm.readthedocs.io/en/latest/Python-API.html#lightgbm.LGBMClassifier)
 * `elm` - [ELM Classifier](https://github.com/dclambert/Python-ELM)
 * `fmcb` - [Factorized MultiClass Boosting](https://github.com/rebryk/mcc-benchmark/blob/master/benchmark/model/fmcb.py)
 
@@ -107,9 +105,12 @@ Currently we support some multiclass classification datasets from [LIBSVM](https
 * `iris`
 * `wine`
 * `glass`
-* `aloi`
-* `letter`
+* `aloi100` - aloi dataset with 100 random classes.
+* `aloi250` - aloi dataset with 250 random classes.
+* `aloi500` - aloi dataset with 500 random classes.
+* `aloi1000` - original aloi dataset.
 * `segment`
+* `letter`
 * `new20`
 
 ## License
