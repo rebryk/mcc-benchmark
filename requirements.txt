@@ -14,3 +14,4 @@ urllib3==1.24.1
 catboost==0.11.0
 sklearn-extensions==0.0.2
 xgboost==0.81
+lightgbm==2.2.2
