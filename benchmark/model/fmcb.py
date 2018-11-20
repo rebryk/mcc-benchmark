@@ -53,8 +53,7 @@ class FMCBoosting(Model):
 
         self._train_path = tmp_folder / 'train.tsv'
         self._test_path = tmp_folder / 'test.tsv'
-        self._train_pred_path = tmp_folder / 'train_pred.txt'
-        self._test_pred_path = tmp_folder / 'test_pred.txt'
+        self._pred_path = tmp_folder / 'test_pred.txt'
         self._model_path = tmp_folder / 'model.txt'
 
     def fit(self, X, y):
@@ -62,12 +61,13 @@ class FMCBoosting(Model):
         if self.path is None:
             raise RuntimeError('Path to JMLL is not specified!')
 
-        self._remove_files([self._train_path, self._train_pred_path, self._model_path])
+        self._remove_files([self._train_path, self._model_path])
         self._save_data_to_tsv(X, y, self._train_path)
 
         out = subprocess.DEVNULL if not self.verbose else None
         subprocess.run(['java', '-jar', self.path,
                         '--model', str(self._model_path),
+                        '--train', str(self._train_path),
                         '--n_iter', str(self.n_iter),
                         '--step', str(self.lr),
                         '--gamma', str(self.gamma),
@@ -76,9 +76,7 @@ class FMCBoosting(Model):
                         '--n_bins', str(self.n_bins),
                         '--ensemble_size', str(self.ensemble_size),
                         '--is_gbdt', str(self.is_gbdt),
-                        '--upd_prob', str(self.upd_prob),
-                        '--train', str(self._train_path),
-                        '--train_pred', str(self._train_pred_path)], stdout=out)
+                        '--upd_prob', str(self.upd_prob)], stdout=out)
 
         return self
 
@@ -87,7 +85,7 @@ class FMCBoosting(Model):
         if self.path is None:
             raise RuntimeError('Path to JMLL is not specified!')
 
-        self._remove_files([self._test_path, self._test_pred_path])
+        self._remove_files([self._test_path, self._pred_path])
         fake_y = np.zeros(len(X))
         self._save_data_to_tsv(X, fake_y, self._test_path)
 
@@ -95,9 +93,9 @@ class FMCBoosting(Model):
         subprocess.run(['java', '-jar', self.path,
                         '--model', str(self._model_path),
                         '--test', str(self._test_path),
-                        '--test_pred', str(self._test_pred_path)], stdout=out)
+                        '--test_pred', str(self._pred_path)], stdout=out)
 
-        return self._read_prediction(self._test_pred_path)
+        return self._read_prediction(self._pred_path)
 
     @staticmethod
     def _remove_files(files: [Path]):
