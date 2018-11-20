@@ -1,7 +1,6 @@
 import argparse
 import json
 import logging
-import numpy as np
 from datetime import datetime
 from pathlib import Path
 
@@ -82,7 +81,7 @@ if __name__ == '__main__':
 
     logger.info(f'Loading {args.dataset} dataset...')
     dataset = get_dataset(args.dataset)
-    X_train, X_test, y_train, y_test = dataset.load(DEFAULT_DATA_FOLDER, test_size=args.test_size)
+    X_train, X_test, y_train, y_test = list(dataset.load(DEFAULT_DATA_FOLDER, test_size=args.test_size))[0]
     logger.info(f'Train size:\t{len(X_train)}')
     logger.info(f'Test size:\t{len(X_test)}')
 

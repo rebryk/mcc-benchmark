@@ -1,6 +1,7 @@
 import logging
 from abc import ABC, abstractmethod
 from pathlib import Path
+from typing import Generator
 from typing import Union
 
 import numpy as np
@@ -14,10 +15,14 @@ class Dataset(ABC):
     """Class represents dataset interface."""
 
     @abstractmethod
-    def load(self, data_folder: Union[str, Path], test_size: Union[int, float, None] = None):
+    def load(self,
+             data_folder: Union[str, Path],
+             n_splits: int = 1,
+             test_size: Union[int, float, None] = None) -> Generator:
         """Load the dataset.
 
         :param data_folder: A path to the folder with datasets.
+        :param n_splits: Number of splits to generate.
         :param test_size: Represents the proportion of the dataset to include in the test split.
         :return: X_train, X_test, y_train, y_test
         """
@@ -59,7 +64,10 @@ class LibsvmDataset(Dataset):
         y = np.array([mapping[it] for it in y])
         return X, y
 
-    def load(self, data_folder: Union[Path, str], test_size: float = None):
+    def load(self, data_folder, n_splits: int = 1, test_size: float = None):
+        if n_splits < 1:
+            raise ValueError('n_splits should be positive!')
+
         if not isinstance(data_folder, Path):
             data_folder = Path(data_folder)
 
@@ -92,10 +100,13 @@ class LibsvmDataset(Dataset):
             X_test, y_test = load_svmlight_file(str(test))
             X_test, y_test = X_test.toarray(), y_test.astype(np.int32)
             X_test, y_test = self._reduce_classes(X_test, y_test, classes)
-        else:
-            X_train, X_test, y_train, y_test = train_test_split(X_train,
-                                                                y_train,
-                                                                test_size=test_size,
-                                                                random_state=0,
-                                                                stratify=y_train)
-        return X_train, X_test, y_train, y_test
+
+            if n_splits == 1:
+                yield X_train, X_test, y_train, y_test
+                return
+
+            X_train = np.vstack((X_train, X_test))
+            y_train = np.concatenate((y_train, y_test))
+
+        for it in range(n_splits):
+            yield train_test_split(X_train, y_train, test_size=test_size, random_state=it, stratify=y_train)
