@@ -18,6 +18,7 @@ class FMCBoosting(Model):
                  n_bins: int = 32,
                  ensemble_size: int = 1,
                  is_gbdt: bool = False,
+                 upd_prob: float = 1.0,
                  verbose: bool = False):
         """Factorized MultiClass Boosting
 
@@ -30,6 +31,7 @@ class FMCBoosting(Model):
         :param n_bins: Bin factor.
         :param ensemble_size: The size of weak ensemble.
         :param is_gbdt: Whether we should use Gradient Boosting Decision Trees instead of Random Forest.
+        :param upd_prob: Gradient row update probability.
         :param verbose: Verbose output.
         """
         self.path = path
@@ -41,6 +43,7 @@ class FMCBoosting(Model):
         self.n_bins = n_bins
         self.ensemble_size = ensemble_size
         self.is_gbdt = is_gbdt
+        self.upd_prob = upd_prob
         self.verbose = verbose
 
         tmp_folder = Path().absolute() / 'tmp'
@@ -73,6 +76,7 @@ class FMCBoosting(Model):
                         '--n_bins', str(self.n_bins),
                         '--ensemble_size', str(self.ensemble_size),
                         '--is_gbdt', str(self.is_gbdt),
+                        '--upd_prob', str(self.upd_prob),
                         '--train', str(self._train_path),
                         '--train_pred', str(self._train_pred_path)], stdout=out)
 
