@@ -4,7 +4,7 @@ from catboost import CatBoostClassifier
 from lightgbm import LGBMClassifier
 from sklearn.ensemble import GradientBoostingClassifier
 from sklearn.ensemble import RandomForestClassifier
-from sklearn.model_selection import GridSearchCV
+from sklearn.model_selection import GridSearchCV, RandomizedSearchCV
 from sklearn.multiclass import OneVsRestClassifier
 from sklearn.naive_bayes import GaussianNB
 from sklearn.neighbors import KNeighborsClassifier
@@ -52,6 +52,7 @@ _models.fmcb = FMCBoosting
 
 _selection_methods = AttributeDict()
 _selection_methods.grid_search_cv = GridSearchCV
+_selection_methods.randomized_search_cv = RandomizedSearchCV
 
 
 def get_dataset(dataset: str) -> Dataset:
