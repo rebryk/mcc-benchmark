@@ -62,7 +62,7 @@ def get_dataset(dataset: str) -> Dataset:
     return _datasets[dataset]
 
 
-def get_model(model: str) -> Model.__class__:
+def get_model_class(model: str) -> Model.__class__:
     """Get model by its name."""
     model = model.lower()
 
@@ -82,4 +82,4 @@ def get_selection_method(model_selection: str):
     return _selection_methods[model_selection]
 
 
-__all__ = ['Dataset', 'Model', 'get_dataset', 'get_model', 'get_selection_method']
+__all__ = ['Dataset', 'Model', 'get_dataset', 'get_model_class', 'get_selection_method']
