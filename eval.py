@@ -13,18 +13,6 @@ DEFAULT_LOG_FOLDER = Path('logs')
 
 logger = logging.getLogger('eval')
 
-parser = argparse.ArgumentParser('Evaluate the given model on the specified dataset.')
-parser.add_argument('--model', type=str, required=True, help='model to evaluate')
-parser.add_argument('--params', type=str, default='', help='parameters of the model in json format')
-parser.add_argument('--dataset', type=str, required=True, help='dataset name')
-parser.add_argument('--test_size', type=float, default=None,
-                    help='represents the proportion of the dataset to include in the test split')
-parser.add_argument('--selection', type=str, default=None, help='method of hyperparameter tuning')
-parser.add_argument('--selection_params', type=str, default='',
-                    help='parameters of the selection method in json format')
-parser.add_argument('--param_grid', type=str, default=None,
-                    help='enables searching over any sequence of parameter settings')
-
 
 def parse_params(params: str) -> dict:
     """Parse the given parameters to dictionary."""
@@ -48,40 +36,55 @@ def create_log_handler(file_name: str):
     return file_handler
 
 
+def get_config():
+    parser = argparse.ArgumentParser('Evaluate the given model on the specified dataset.')
+    parser.add_argument('--model', type=str, required=True, help='model to evaluate')
+    parser.add_argument('--params', type=str, default='', help='parameters of the model in json format')
+    parser.add_argument('--dataset', type=str, required=True, help='dataset name')
+    parser.add_argument('--test_size', type=float, default=None,
+                        help='represents the proportion of the dataset to include in the test split')
+    parser.add_argument('--selection', type=str, default=None, help='method of hyperparameter tuning')
+    parser.add_argument('--selection_params', type=str, default='',
+                        help='parameters of the selection method in json format')
+    parser.add_argument('--param_grid', type=str, default=None,
+                        help='enables searching over any sequence of parameter settings')
+    return parser.parse_args()
+
+
 if __name__ == '__main__':
-    args = parser.parse_args()
+    config = get_config()
 
     current_date = datetime.now().strftime('%Y.%m.%d %H.%M.%S')
-    file_name = f'{args.model} {args.dataset} {current_date}.log'
+    file_name = f'{config.model} {config.dataset} {current_date}.log'
     logger.addHandler(create_log_handler(file_name))
 
-    model_class = get_model(args.model)
-    logger.info(f'Model: {args.model}')
+    model_class = get_model(config.model)
+    logger.info(f'Model: {config.model}')
 
-    params = parse_params(args.params)
+    params = parse_params(config.params)
     logger.info(f'Model parameters: {params if params else "default"}')
 
     model = model_class(**params)
     selection = None
 
-    if args.selection is not None:
-        selection_class = get_selection_method(args.selection)
-        logger.info(f'Selection method: {args.selection}')
+    if config.selection is not None:
+        selection_class = get_selection_method(config.selection)
+        logger.info(f'Selection method: {config.selection}')
 
-        selection_params = parse_params(args.selection_params)
+        selection_params = parse_params(config.selection_params)
         logger.info(f'Selection method parameters: {selection_params if selection_params else "default"}')
 
-        if args.param_grid is None:
+        if config.param_grid is None:
             raise RuntimeError('Parameters grid does not specified!')
 
-        param_grid = parse_params(args.param_grid)
+        param_grid = parse_params(config.param_grid)
         logger.info(f'Parameters grid: {param_grid}')
         param_grid = eval_params(param_grid)
         selection = selection_class(model, param_grid, **selection_params)
 
-    logger.info(f'Loading {args.dataset} dataset...')
-    dataset = get_dataset(args.dataset)
-    X_train, X_test, y_train, y_test = list(dataset.load(DEFAULT_DATA_FOLDER, test_size=args.test_size))[0]
+    logger.info(f'Loading {config.dataset} dataset...')
+    dataset = get_dataset(config.dataset)
+    X_train, X_test, y_train, y_test = list(dataset.load(DEFAULT_DATA_FOLDER, test_size=config.test_size))[0]
     logger.info(f'Train size:\t{len(X_train)}')
     logger.info(f'Test size:\t{len(X_test)}')
 
