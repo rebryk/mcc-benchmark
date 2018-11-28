@@ -100,11 +100,6 @@ class LibsvmDataset(Dataset):
             X_test, y_test = load_svmlight_file(str(test))
             X_test, y_test = X_test.toarray(), y_test.astype(np.int32)
             X_test, y_test = self._reduce_classes(X_test, y_test, classes)
-
-            if n_splits == 1:
-                yield X_train, X_test, y_train, y_test
-                return
-
             X_train = np.vstack((X_train, X_test))
             y_train = np.concatenate((y_train, y_test))
 
