@@ -1,4 +1,6 @@
 # Benchmarking of MultiClass Classification models
+[![Build Status](https://travis-ci.com/rebryk/mcc-benchmark.svg?branch=master)](https://travis-ci.com/rebryk/mcc-benchmark)
+
 The purpose of this tool is benchmarking of MultiClass Classification models.
 
 ## Installation
