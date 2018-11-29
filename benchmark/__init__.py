@@ -1,11 +1,8 @@
 import logging
 
 from catboost import CatBoostClassifier
-from lightgbm import LGBMClassifier
-from sklearn.ensemble import GradientBoostingClassifier
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.model_selection import GridSearchCV, RandomizedSearchCV
-from sklearn.multiclass import OneVsRestClassifier
 from sklearn.naive_bayes import GaussianNB
 from sklearn.neighbors import KNeighborsClassifier
 from sklearn.svm import SVC
@@ -17,6 +14,10 @@ from .dataset import Dataset
 from .dataset import LibsvmDataset
 from .model import FMCBoosting
 from .model import Model
+from .model import OneVsRestCatBoostClassifier
+from .model import OneVsRestGradientBoostingClassifier
+from .model import OneVsRestLGBMClassifier
+from .model import OneVsRestXGBClassifier
 from .utils import AttributeDict
 
 logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
@@ -43,10 +44,10 @@ _models.rfc = RandomForestClassifier
 _models.dtc = DecisionTreeClassifier
 _models.xgb = XGBClassifier
 _models.cat = CatBoostClassifier
-_models.one_vs_rest_lgbm = lambda *args, **kwargs: OneVsRestClassifier(LGBMClassifier(*args, **kwargs))
-_models.one_vs_rest_gbc = lambda *args, **kwargs: OneVsRestClassifier(GradientBoostingClassifier(*args, **kwargs))
-_models.one_vs_rest_cat = lambda *args, **kwargs: OneVsRestClassifier(CatBoostClassifier(*args, **kwargs))
-_models.one_vs_rest_xgb = lambda *args, **kwargs: OneVsRestClassifier(XGBClassifier(*args, **kwargs))
+_models.one_vs_rest_lgbm = OneVsRestLGBMClassifier
+_models.one_vs_rest_gbc = OneVsRestGradientBoostingClassifier
+_models.one_vs_rest_cat = OneVsRestCatBoostClassifier
+_models.one_vs_rest_xgb = OneVsRestXGBClassifier
 _models.elm = ELMClassifier
 _models.fmcb = FMCBoosting
 
