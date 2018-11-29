@@ -3,11 +3,12 @@ import math
 from datetime import datetime
 from pathlib import Path
 
+import numpy as np
 from sklearn.model_selection import train_test_split
 
 from benchmark import get_selection_method, get_model_class, get_dataset
 from benchmark.result import Result, RunResult
-from benchmark.utils import Timer, parse_params, eval_params
+from benchmark.utils import Timer, parse_params, eval_params, AttributeDict
 
 
 class Experiment:
@@ -60,10 +61,10 @@ class Experiment:
         file_handler.setFormatter(formatter)
         self.logger.addHandler(file_handler)
 
-    def _create_selection(self, model_class, params):
+    def _get_selection_params(self) -> dict:
         """Initialize selection method."""
         if self.selection is None:
-            return None
+            return {}
 
         selection_class = get_selection_method(self.selection)
         selection_params = parse_params(self.selection_params or '')
@@ -77,31 +78,41 @@ class Experiment:
         self.logger.info(f'Selection parameters: {selection_params if selection_params else "default"}')
         self.logger.info(f'Parameters grid: {param_grid}')
 
-        return selection_class(model_class(**params), param_grid, **selection_params)
+        return AttributeDict({'selection_class': selection_class, 'param_grid': param_grid, 'params': selection_params})
 
-    def _run(self, model_class, params, selection, X_train, X_test, y_train, y_test) -> RunResult:
+    def _run(self, model_class, params, selection_params, X_train, X_test, y_train, y_test) -> RunResult:
         """Train and evaluate the given model."""
         result = RunResult()
 
         X_valid = None
         y_valid = None
+        dataset_size = len(X_train) + len(X_test)
+        valid_size = math.floor(self.valid_size * dataset_size) if self.valid_size else 0
 
-        if self.valid_size:
-            dataset_size = len(X_train) + len(X_test)
-            valid_size = math.floor(self.valid_size * dataset_size)
+        if valid_size:
             X_train, X_valid, y_train, y_valid = train_test_split(X_train,
                                                                   y_train,
                                                                   test_size=valid_size,
                                                                   random_state=0,
                                                                   stratify=y_train)
 
-        if selection is not None:
+        if selection_params:
             self.logger.info('Searching the best parameters...')
 
+            X = np.vstack((X_train, X_valid)) if valid_size else X_train
+            y = np.concatenate((y_train, y_valid)) if valid_size else y_train
+
+            if valid_size:
+                indices = list(range(len(X)))
+                selection_params.params['cv'] = [(indices[:len(X_train)], indices[len(X_train):])]
+
+            selection = selection_params.selection_class(model_class(**params),
+                                                         selection_params.param_grid,
+                                                         **selection_params.params)
+
             with Timer('Searching time', self.logger) as timer:
-                selection.fit(X_train, y_train)
+                selection.fit(X, y)
             result.search_time = timer.total_seconds()
-            self.logger.info(f'Best parameters: {selection.best_params_}')
             self.logger.info('Grid scores on validate set:')
 
             means = selection.cv_results_['mean_test_score']
@@ -109,6 +120,7 @@ class Experiment:
             for mean, std, curr_params in zip(means, stds, selection.cv_results_['params']):
                 self.logger.info(f'Valid score: {mean:0.3f} (+/-{std * 2:0.03f}) for {curr_params}')
 
+            self.logger.info(f'Best parameters: {selection.best_params_}')
             result.params = str({**params, **selection.best_params_})
             model = model_class(**{**params, **selection.best_params_})
         else:
@@ -125,7 +137,7 @@ class Experiment:
         result.pred_time_train = timer.total_seconds()
         self.logger.info(f'Train score:\t{result.score_train:0.3f}')
 
-        if X_valid is not None:
+        if valid_size:
             with Timer('Prediction time (valid)') as timer:
                 result.score_valid = round(model.score(X_valid, y_valid), self.PRECISION)
             result.pred_time_valid = timer.total_seconds()
@@ -150,7 +162,7 @@ class Experiment:
         self.logger.info(f'Model: {self.model}')
         self.logger.info(f'Model parameters: {params if params else "default"}')
 
-        selection = self._create_selection(model_class, params)
+        selection_params = self._get_selection_params()
 
         self.logger.info(f'Loading {self.dataset} dataset...')
         dataset = get_dataset(self.dataset)
@@ -168,7 +180,7 @@ class Experiment:
                     self.logger.info(f'Test size: {len(X_test)}')
 
                 self.logger.info(f'Run #{run}')
-                self.runs.append(self._run(model_class, params, selection, X_train, X_test, y_train, y_test))
+                self.runs.append(self._run(model_class, params, selection_params, X_train, X_test, y_train, y_test))
 
         result = Result(model=self.model,
                         params=self.params,
