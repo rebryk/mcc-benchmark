@@ -95,13 +95,6 @@ class Experiment:
                                                                   random_state=0,
                                                                   stratify=y_train)
 
-        self.logger.info(f'Train size: {len(X_train)}')
-
-        if X_valid is not None:
-            self.logger.info(f'Valid size: {len(X_valid)}')
-
-        self.logger.info(f'Test size: {len(X_test)}')
-
         if selection is not None:
             self.logger.info('Searching the best parameters...')
 
@@ -148,7 +141,7 @@ class Experiment:
     def run(self):
         """Run an experiment with the specified parameters."""
         current_date = datetime.now().strftime('%Y.%m.%d %H.%M.%S')
-        file_name = f'{self.model} {self.dataset} {current_date}'
+        file_name = f'{self.dataset} {self.model} {current_date}'
 
         self._create_log_handler(f'{file_name}.log')
 
@@ -165,6 +158,15 @@ class Experiment:
 
         with Timer('Total time', self.logger) as timer:
             for run, (X_train, X_test, y_train, y_test) in enumerate(dataset_generator, 1):
+                if run == 1:
+                    dataset_size = len(X_train) + len(X_test)
+                    valid_size = math.floor(self.valid_size * dataset_size) if self.valid_size else 0
+
+                    self.logger.info(f'Train size: {len(X_train) - valid_size}')
+                    if valid_size:
+                        self.logger.info(f'Valid size: {valid_size}')
+                    self.logger.info(f'Test size: {len(X_test)}')
+
                 self.logger.info(f'Run #{run}')
                 self.runs.append(self._run(model_class, params, selection, X_train, X_test, y_train, y_test))
 
