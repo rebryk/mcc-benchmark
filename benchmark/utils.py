@@ -1,8 +1,8 @@
 import json
 from datetime import datetime
 from pathlib import Path
-import numpy as np
 
+import numpy as np
 import requests
 
 
@@ -27,6 +27,19 @@ def parse_params(params: str) -> dict:
 def eval_params(params: dict) -> dict:
     """Evaluate values if they are not string."""
     return {key: eval(value) if isinstance(value, str) else value for key, value in params.items()}
+
+
+def get_write_method(logger):
+    """Generate write method for logger."""
+
+    def write(msg: str):
+        if msg == '\n':
+            return
+
+        for it in msg.split('\n'):
+            logger.info(it)
+
+    return write
 
 
 class Timer:

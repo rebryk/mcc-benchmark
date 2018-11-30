@@ -1,5 +1,6 @@
 import logging
 import math
+from contextlib import redirect_stdout
 from datetime import datetime
 from pathlib import Path
 
@@ -8,7 +9,7 @@ from sklearn.model_selection import train_test_split
 
 from benchmark import get_selection_method, get_model_class, get_dataset
 from benchmark.result import Result, RunResult
-from benchmark.utils import Timer, parse_params, eval_params, AttributeDict
+from benchmark.utils import Timer, parse_params, eval_params, AttributeDict, get_write_method
 
 
 class Experiment:
@@ -49,6 +50,7 @@ class Experiment:
         self.param_grid = param_grid
         self.runs = []
         self.logger = logging.getLogger(self.__class__.__name__)
+        self.logger.write = get_write_method(self.logger)
 
     def _create_log_handler(self, file_name: str):
         """Create handler to write log to the file."""
@@ -128,8 +130,9 @@ class Experiment:
             model = model_class(**params)
 
         self.logger.info('Training the model...')
-        with Timer('Training time', self.logger) as timer:
-            model.fit(X_train, y_train)
+        with redirect_stdout(self.logger):
+            with Timer('Training time', self.logger) as timer:
+                model.fit(X_train, y_train)
         result.train_time = timer.total_seconds()
 
         with Timer('Prediction time (train)') as timer:
