@@ -51,6 +51,7 @@ class Experiment:
         self.runs = []
         self.logger = logging.getLogger(self.__class__.__name__)
         self.logger.write = get_write_method(self.logger)
+        self.logger.flush = lambda: None
 
     def _create_log_handler(self, file_name: str):
         """Create handler to write log to the file."""
