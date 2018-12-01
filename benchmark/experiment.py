@@ -107,7 +107,6 @@ class Experiment:
             del params['early_stopping_rounds']
             fit_params['early_stopping_rounds'] = early_stopping_rounds
             fit_params['eval_set'] = [(X_valid, y_valid)]
-            fit_params['eval_names'] = ['valid']
 
         if selection_params:
             self.logger.info('Searching the best parameters...')
