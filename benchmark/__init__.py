@@ -1,6 +1,7 @@
 import logging
 
 from catboost import CatBoostClassifier
+from lightgbm import LGBMClassifier
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.model_selection import GridSearchCV, RandomizedSearchCV
 from sklearn.naive_bayes import GaussianNB
@@ -14,10 +15,6 @@ from .dataset import Dataset
 from .dataset import LibsvmDataset
 from .model import FMCBoosting
 from .model import Model
-from .model import OneVsRestCatBoostClassifier
-from .model import OneVsRestGradientBoostingClassifier
-from .model import OneVsRestLGBMClassifier
-from .model import OneVsRestXGBClassifier
 from .utils import AttributeDict
 
 logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
@@ -44,10 +41,7 @@ _models.rfc = RandomForestClassifier
 _models.dtc = DecisionTreeClassifier
 _models.xgb = XGBClassifier
 _models.cat = CatBoostClassifier
-_models.one_vs_rest_lgbm = OneVsRestLGBMClassifier
-_models.one_vs_rest_gbc = OneVsRestGradientBoostingClassifier
-_models.one_vs_rest_cat = OneVsRestCatBoostClassifier
-_models.one_vs_rest_xgb = OneVsRestXGBClassifier
+_models.lgbm = LGBMClassifier
 _models.elm = ELMClassifier
 _models.fmcb = FMCBoosting
 
