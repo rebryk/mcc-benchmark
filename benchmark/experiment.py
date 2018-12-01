@@ -98,6 +98,17 @@ class Experiment:
                                                                   random_state=0,
                                                                   stratify=y_train)
 
+        fit_params = {}
+        early_stopping_rounds = params.get('early_stopping_rounds', None)
+        if early_stopping_rounds:
+            if not valid_size:
+                raise RuntimeError('Valid set is not specified!')
+
+            del params['early_stopping_rounds']
+            fit_params['early_stopping_rounds'] = early_stopping_rounds
+            fit_params['eval_set'] = [(X_valid, y_valid)]
+            fit_params['eval_names'] = ['valid']
+
         if selection_params:
             self.logger.info('Searching the best parameters...')
 
@@ -112,8 +123,10 @@ class Experiment:
                                                          selection_params.param_grid,
                                                          **selection_params.params)
 
-            with Timer('Searching time', self.logger) as timer:
-                selection.fit(X, y)
+            with redirect_stdout(self.logger):
+                with Timer('Searching time', self.logger) as timer:
+                    selection.fit(X, y, **fit_params)
+
             result.search_time = timer.total_seconds()
             self.logger.info('Grid scores on validate set:')
 
