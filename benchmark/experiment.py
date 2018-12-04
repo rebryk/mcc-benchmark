@@ -107,6 +107,8 @@ class Experiment:
 
             del params['early_stopping_rounds']
             fit_params['early_stopping_rounds'] = early_stopping_rounds
+
+        if valid_size:
             fit_params['eval_set'] = [(X_valid, y_valid)]
 
         if selection_params:
@@ -145,7 +147,7 @@ class Experiment:
         self.logger.info('Training the model...')
         with redirect_stdout(self.logger):
             with Timer('Training time', self.logger) as timer:
-                model.fit(X_train, y_train)
+                model.fit(X_train, y_train, **fit_params)
         result.train_time = timer.total_seconds()
 
         with Timer('Prediction time (train)') as timer:
