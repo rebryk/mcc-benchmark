@@ -3,6 +3,7 @@ import math
 from contextlib import redirect_stdout
 from datetime import datetime
 from pathlib import Path
+import inspect
 
 import numpy as np
 from sklearn.model_selection import train_test_split
@@ -106,9 +107,10 @@ class Experiment:
                 raise RuntimeError('Valid set is not specified!')
 
             del params['early_stopping_rounds']
-            fit_params['early_stopping_rounds'] = early_stopping_rounds
+            if inspect.signature(model_class.fit).parameters.get('early_stopping_rounds') is not None:
+                fit_params['early_stopping_rounds'] = early_stopping_rounds
 
-        if valid_size and self.model not in ['svm']:
+        if valid_size and inspect.signature(model_class.fit).parameters.get('eval_set') is not None:
             fit_params['eval_set'] = [(X_valid, y_valid)]
 
         if selection_params:
