@@ -108,7 +108,7 @@ class Experiment:
             del params['early_stopping_rounds']
             fit_params['early_stopping_rounds'] = early_stopping_rounds
 
-        if valid_size:
+        if valid_size and self.model not in ['svm']:
             fit_params['eval_set'] = [(X_valid, y_valid)]
 
         if selection_params:
