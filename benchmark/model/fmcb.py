@@ -49,31 +49,43 @@ class FMCBoosting(Model):
             tmp_folder.mkdir()
 
         self._train_path = tmp_folder / 'train.tsv'
+        self._valid_path = tmp_folder / 'valid.tsv'
         self._test_path = tmp_folder / 'test.tsv'
         self._pred_path = tmp_folder / 'test_pred.txt'
         self._model_path = tmp_folder / 'model.txt'
 
-    def fit(self, X, y):
+    def fit(self, X, y, eval_set=None, early_stopping_rounds=None):
         """Fit the estimator."""
         if self.path is None:
             raise RuntimeError('Path to JMLL is not specified!')
 
-        self._remove_files([self._train_path, self._model_path])
+        self._remove_files([self._train_path, self._valid_path, self._model_path])
         self._save_data_to_tsv(X, y, self._train_path)
 
-        out = subprocess.DEVNULL if not self.verbose else None
-        subprocess.run(['java', '-jar', self.path,
-                        '--model', str(self._model_path),
-                        '--train', str(self._train_path),
-                        '--n_iter', str(self.n_iter),
-                        '--step', str(self.lr),
-                        '--gamma', str(self.gamma),
-                        '--max_iter', str(self.max_iter),
-                        '--depth', str(self.depth),
-                        '--n_bins', str(self.n_bins),
-                        '--ensemble_size', str(self.ensemble_size),
-                        '--is_gbdt', str(self.is_gbdt)], stdout=out)
+        if eval_set:
+            X_valid, y_valid = eval_set[0]
+            self._save_data_to_tsv(X_valid, y_valid, self._valid_path)
 
+        out = subprocess.DEVNULL if not self.verbose else None
+        params = ['java', '-jar', self.path,
+                  '--model', str(self._model_path),
+                  '--train', str(self._train_path),
+                  '--n_iter', str(self.n_iter),
+                  '--step', str(self.lr),
+                  '--gamma', str(self.gamma),
+                  '--max_iter', str(self.max_iter),
+                  '--depth', str(self.depth),
+                  '--n_bins', str(self.n_bins),
+                  '--ensemble_size', str(self.ensemble_size),
+                  '--is_gbdt', str(self.is_gbdt)]
+
+        if eval_set:
+            params += ['--valid', str(self._valid_path)]
+
+        if early_stopping_rounds:
+            params += ['--early_stopping_rounds', str(early_stopping_rounds)]
+
+        subprocess.run(params, stdout=out)
         return self
 
     def predict(self, X):
