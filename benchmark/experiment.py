@@ -25,6 +25,7 @@ class Experiment:
                  test_size: float,
                  valid_size: float = None,
                  n_runs: int = 1,
+                 n_skip_runs: int = 0,
                  selection: str = None,
                  selection_params: str = None,
                  param_grid: str = None):
@@ -36,6 +37,7 @@ class Experiment:
         :param test_size: represents the proportion of the dataset to include in the test split.
         :param valid_size: represents the proportion of the dataset to include in the valid split.
         :param n_runs: number of runs.
+        :param n_skip_runs: number of runs to be skipped.
         :param selection: method of hyperparameter tuning.
         :param selection_params: parameters of the selection method in json format.
         :param param_grid: enables searching over any sequence of parameter settings.
@@ -46,6 +48,7 @@ class Experiment:
         self.test_size = test_size
         self.valid_size = valid_size
         self.n_runs = n_runs
+        self.n_skip_runs = n_skip_runs
         self.selection = selection
         self.selection_params = selection_params
         self.param_grid = param_grid
@@ -186,11 +189,14 @@ class Experiment:
 
         self.logger.info(f'Loading {self.dataset} dataset...')
         dataset = get_dataset(self.dataset)
-        dataset_generator = dataset.load(Experiment.DEFAULT_DATA_FOLDER, n_splits=self.n_runs, test_size=self.test_size)
+        dataset_generator = dataset.load(Experiment.DEFAULT_DATA_FOLDER, n_splits=self.n_runs + self.n_skip_runs, test_size=self.test_size)
 
         with Timer('Total time', self.logger) as timer:
             for run, (X_train, X_test, y_train, y_test) in enumerate(dataset_generator, 1):
-                if run == 1:
+                if run <= self.n_skip_runs:
+                    continue
+
+                if run == self.n_skip_runs + 1:
                     dataset_size = len(X_train) + len(X_test)
                     valid_size = math.floor(self.valid_size * dataset_size) if self.valid_size else 0
 

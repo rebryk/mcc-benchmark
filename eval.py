@@ -13,6 +13,7 @@ def get_config():
     parser.add_argument('--valid_size', type=float, default=None,
                         help='represents the proportion of the dataset to include in the valid split')
     parser.add_argument('--n_runs', type=int, default=1, help='number of runs')
+    parser.add_argument('--n_skip_runs', type=int, default=0, help='number of runs to be skipped')
     parser.add_argument('--selection', type=str, default=None, help='method of hyperparameter tuning')
     parser.add_argument('--selection_params', type=str, default=None,
                         help='parameters of the selection method in json format')
@@ -29,6 +30,7 @@ if __name__ == '__main__':
                             test_size=config.test_size,
                             valid_size=config.valid_size,
                             n_runs=config.n_runs,
+                            n_skip_runs=config.n_skip_runs,
                             selection=config.selection,
                             selection_params=config.selection_params,
                             param_grid=config.param_grid)
