@@ -1,8 +1,9 @@
 import logging
+import math
 from abc import ABC, abstractmethod
 from pathlib import Path
 from typing import Generator
-from typing import Union
+from typing import Union, Tuple
 
 import numpy as np
 from sklearn.datasets import load_svmlight_file
@@ -38,14 +39,15 @@ class LibsvmDataset(Dataset):
 
     SOURCE = 'https://www.csie.ntu.edu.tw/~cjlin/libsvmtools/datasets/multiclass/'
 
-    def __init__(self, train: str, test: str = None, n_classes: int = None):
+    def __init__(self, train: str, test: str = None, n_classes: int = None, imbalanced: bool = False):
         self.train = train
         self.test = test
         self.n_classes = n_classes
+        self.imbalanced = imbalanced
         self.logger = logging.getLogger(self.__class__.__name__)
 
     @staticmethod
-    def _select_classes(y: np.ndarray, n_classes: int):
+    def _select_classes(y: np.ndarray, n_classes: int) -> np.ndarray:
         np.random.seed(0)
         classes = np.unique(y)
 
@@ -58,12 +60,28 @@ class LibsvmDataset(Dataset):
         return np.random.choice(classes, size=n_classes, replace=False)
 
     @staticmethod
-    def _reduce_classes(X: np.ndarray, y: np.ndarray, classes: np.ndarray):
+    def _reduce_classes(X: np.ndarray, y: np.ndarray, classes: np.ndarray) -> Tuple[np.ndarray, np.ndarray]:
         mask = np.isin(y, classes)
         X, y = X[mask], y[mask]
         mapping = {y: i for i, y in enumerate(classes)}
         y = np.array([mapping[it] for it in y])
         return X, y
+
+    @staticmethod
+    def _imbalance(X: np.ndarray, y: np.ndarray) -> Tuple[np.ndarray, np.ndarray]:
+        np.random.seed(0)
+
+        result = []
+        indices = np.arange(len(y))
+        classes, cnt = np.unique(y, return_counts=True)
+
+        for clazz in classes:
+            fraction = np.random.random()
+            count = max(int(cnt[clazz] * fraction), 2)
+            result.append(np.random.choice(indices[y == clazz], size=count, replace=False))
+
+        indices = np.concatenate(result)
+        return X[indices], y[indices]
 
     def load(self, data_folder, n_splits: int = 1, test_size: float = None):
         if n_splits < 1:
@@ -93,6 +111,9 @@ class LibsvmDataset(Dataset):
 
         X_train, y_train = load_svmlight_file(str(train))
         X_train, y_train = X_train.toarray(), y_train.astype(np.int32)
+
+        if self.imbalanced:
+            X_train, y_train = self._imbalance(X_train, y_train)
 
         classes = self._select_classes(y_train, self.n_classes)
         X_train, y_train = self._reduce_classes(X_train, y_train, classes)

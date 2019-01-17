@@ -98,7 +98,7 @@ class FMCBoosting(Model):
         self._save_data_to_tsv(X, fake_y, self._test_path)
 
         out = subprocess.DEVNULL if not self.verbose else None
-        subprocess.run(['java', '-jar', self.path,
+        subprocess.run(['java', '-Xmx16G', '-jar', self.path,
                         '--model', str(self._model_path),
                         '--test', str(self._test_path),
                         '--test_pred', str(self._pred_path)], stdout=out)

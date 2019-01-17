@@ -1,9 +1,9 @@
+import inspect
 import logging
 import math
 from contextlib import redirect_stdout
 from datetime import datetime
 from pathlib import Path
-import inspect
 
 import numpy as np
 from sklearn.model_selection import train_test_split
@@ -16,7 +16,6 @@ from benchmark.utils import Timer, parse_params, eval_params, AttributeDict, get
 class Experiment:
     DEFAULT_DATA_FOLDER = Path('dataset')
     DEFAULT_LOG_FOLDER = Path('logs')
-    PRECISION = 4
 
     def __init__(self,
                  model: str,
@@ -56,6 +55,8 @@ class Experiment:
         self.logger = logging.getLogger(self.__class__.__name__)
         self.logger.write = get_write_method(self.logger)
         self.logger.flush = lambda: None
+
+    PRECISION = 4
 
     def _create_log_handler(self, file_name: str):
         """Create handler to write log to the file."""
@@ -140,7 +141,7 @@ class Experiment:
             means = selection.cv_results_['mean_test_score']
             stds = selection.cv_results_['std_test_score']
             for mean, std, curr_params in zip(means, stds, selection.cv_results_['params']):
-                self.logger.info(f'Valid score: {mean:0.3f} (+/-{std * 2:0.03f}) for {curr_params}')
+                self.logger.info(f'Valid score: {mean:0.4f} (+/-{std * 2:0.03f}) for {curr_params}')
 
             self.logger.info(f'Best parameters: {selection.best_params_}')
             result.params = str({**params, **selection.best_params_})
@@ -158,18 +159,18 @@ class Experiment:
         with Timer('Prediction time (train)') as timer:
             result.score_train = round(model.score(X_train, y_train), self.PRECISION)
         result.pred_time_train = timer.total_seconds()
-        self.logger.info(f'Train score:\t{result.score_train:0.3f}')
+        self.logger.info(f'Train score:\t{result.score_train:0.4f}')
 
         if valid_size:
-            with Timer('Prediction time (valid)') as timer:
+            with Timer('Prediction time (valid)', self.logger) as timer:
                 result.score_valid = round(model.score(X_valid, y_valid), self.PRECISION)
             result.pred_time_valid = timer.total_seconds()
-            self.logger.info(f'Valid score:\t{result.score_valid:0.3f}')
+            self.logger.info(f'Valid score:\t{result.score_valid:0.4f}')
 
-        with Timer('Prediction time (test)') as timer:
+        with Timer('Prediction time (test)', self.logger) as timer:
             result.score_test = round(model.score(X_test, y_test), self.PRECISION)
         result.pred_time_test = timer.total_seconds()
-        self.logger.info(f'Test score:\t{result.score_test:0.3f}')
+        self.logger.info(f'Test score:\t{result.score_test:0.4f}')
 
         return result
 
@@ -189,7 +190,9 @@ class Experiment:
 
         self.logger.info(f'Loading {self.dataset} dataset...')
         dataset = get_dataset(self.dataset)
-        dataset_generator = dataset.load(Experiment.DEFAULT_DATA_FOLDER, n_splits=self.n_runs + self.n_skip_runs, test_size=self.test_size)
+        dataset_generator = dataset.load(Experiment.DEFAULT_DATA_FOLDER,
+                                         n_splits=self.n_runs + self.n_skip_runs,
+                                         test_size=self.test_size)
 
         with Timer('Total time', self.logger) as timer:
             for run, (X_train, X_test, y_train, y_test) in enumerate(dataset_generator, 1):
