@@ -190,7 +190,9 @@ class Experiment:
 
         self.logger.info(f'Loading {self.dataset} dataset...')
         dataset = get_dataset(self.dataset)
-        dataset_generator = dataset.load(Experiment.DEFAULT_DATA_FOLDER, n_splits=self.n_runs + self.n_skip_runs, test_size=self.test_size)
+        dataset_generator = dataset.load(Experiment.DEFAULT_DATA_FOLDER,
+                                         n_splits=self.n_runs + self.n_skip_runs,
+                                         test_size=self.test_size)
 
         with Timer('Total time', self.logger) as timer:
             for run, (X_train, X_test, y_train, y_test) in enumerate(dataset_generator, 1):
