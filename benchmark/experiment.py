@@ -162,12 +162,12 @@ class Experiment:
         self.logger.info(f'Train score:\t{result.score_train:0.4f}')
 
         if valid_size:
-            with Timer('Prediction time (valid)') as timer:
+            with Timer('Prediction time (valid)', self.logger) as timer:
                 result.score_valid = round(model.score(X_valid, y_valid), self.PRECISION)
             result.pred_time_valid = timer.total_seconds()
             self.logger.info(f'Valid score:\t{result.score_valid:0.4f}')
 
-        with Timer('Prediction time (test)') as timer:
+        with Timer('Prediction time (test)', self.logger) as timer:
             result.score_test = round(model.score(X_test, y_test), self.PRECISION)
         result.pred_time_test = timer.total_seconds()
         self.logger.info(f'Test score:\t{result.score_test:0.4f}')
