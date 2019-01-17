@@ -13,6 +13,10 @@ from xgboost import XGBClassifier
 
 from .dataset import Dataset
 from .dataset import LibsvmDataset
+from .dataset import ImageSegmentation
+from .dataset import Covertype
+from .dataset import WinequalityWhite
+from .dataset import Abalone
 from .model import FMCBoosting
 from .model import Model
 from .utils import AttributeDict
@@ -32,6 +36,14 @@ _datasets.aloi1000 = LibsvmDataset('aloi.scale.bz2', n_classes=1000)
 _datasets.segment = LibsvmDataset('segment.scale')
 _datasets.letter = LibsvmDataset('letter.scale', 'letter.scale.t')
 _datasets.news20 = LibsvmDataset('news20.scale.bz2', 'news20.t.scale.bz2')
+_datasets.mnist = LibsvmDataset('mnist.scale.bz2', 'mnist.scale.t.bz2')
+_datasets.pendigits = LibsvmDataset('pendigits', 'pendigits.t')
+_datasets.image_segmentation = ImageSegmentation()
+_datasets.covertype = Covertype()
+_datasets.winequality_white = WinequalityWhite()
+
+# Some classes consist of only one sample
+# _datasets.abalone = Abalone()
 
 _models = AttributeDict()
 _models.svm = SVC
