@@ -114,7 +114,7 @@ Currently we support some multiclass classification datasets from [LIBSVM](https
 * `letter`
 * `new20`
 * `mnist`
-* `pendigits'
+* `pendigits`
 
 **UPD.** Added support of some multiclass classification datasets from [UCI](http://archive.ics.uci.edu/ml/index.php):
 * [`image_segmentation`](http://archive.ics.uci.edu/ml/datasets/image+segmentation)
