@@ -13,6 +13,7 @@ class FMCBoosting(Model):
                  n_iter: int = 2000,
                  lr: float = 5,
                  gamma: float = 100,
+                 beta: float = 0.0,
                  max_iter: int = 2000,
                  depth: int = 5,
                  n_bins: int = 32,
@@ -25,6 +26,7 @@ class FMCBoosting(Model):
         :param n_iter: The number of weak learners.
         :param lr: Learning rate.
         :param gamma: Learning rate for StochasticALS.
+        :param beta: L1 loss coefficient.
         :param max_iter: Max iterations count for StochasticALS.
         :param depth: The maximum depth of the weak tree.
         :param n_bins: Bin factor.
@@ -36,6 +38,7 @@ class FMCBoosting(Model):
         self.n_iter = n_iter
         self.lr = lr
         self.gamma = gamma
+        self.beta = beta
         self.max_iter = max_iter
         self.depth = depth
         self.n_bins = n_bins
@@ -73,6 +76,7 @@ class FMCBoosting(Model):
                   '--n_iter', str(self.n_iter),
                   '--step', str(self.lr),
                   '--gamma', str(self.gamma),
+                  '--lambda', str(self.beta),
                   '--max_iter', str(self.max_iter),
                   '--depth', str(self.depth),
                   '--n_bins', str(self.n_bins),
