@@ -113,6 +113,13 @@ Currently we support some multiclass classification datasets from [LIBSVM](https
 * `segment`
 * `letter`
 * `new20`
+* `mnist`
+* `pendigits`
+
+**UPD.** Added support of some multiclass classification datasets from [UCI](http://archive.ics.uci.edu/ml/index.php):
+* [`image_segmentation`](http://archive.ics.uci.edu/ml/datasets/image+segmentation)
+* [`covertype`](https://archive.ics.uci.edu/ml/datasets/Covertype)
+* [`winequality_white`](https://archive.ics.uci.edu/ml/datasets/wine+quality)
 
 ## License
 [MIT](LICENSE)
