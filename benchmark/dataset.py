@@ -133,7 +133,62 @@ class LibsvmDataset(Dataset):
             yield train_test_split(X_train, y_train, test_size=test_size, random_state=it, stratify=y_train)
 
 
-class ImageSegmentation(Dataset):
+class CSVDataset(Dataset):
+    def __init__(self, class_name, source, train, test, sep, skiprows, compression, label_column):
+        self.source = source
+        self.train = train
+        self.test = test
+        self.sep = sep
+        self.skiprows = skiprows
+        self.compression = compression
+        self.label_column = label_column
+        self.logger = logging.getLogger(class_name)
+
+    def _load_csv(self, data_folder, dataset):
+        dataset = data_folder / dataset
+        if not dataset.exists():
+            url = self.source + dataset
+            self.logger.info(f'Downloading dataset from {url}')
+            download_file(url, dataset)
+
+        df = pd.read_csv(dataset, header=None, index_col=None, sep=self.sep, skiprows=self.skiprows, compression=self.compression)
+        X, y = np.array(df.drop(df.columns[[self.label_column]], axis=1)), np.array(df.iloc[:,self.label_column])
+        return X, y
+
+    def load(self, data_folder, n_splits: int = 1, test_size: float = None):
+        if n_splits < 1:
+            raise ValueError('n_splits should be positive!')
+
+        if not isinstance(data_folder, Path):
+            data_folder = Path(data_folder)
+
+        if not data_folder.exists():
+            data_folder.mkdir()
+
+        X_train, y_train = self._load_csv(data_folder, self.train)
+
+        if self.test is not None:
+            X_test, y_test = self._load_csv(data_folder, self.test)
+            X_train = np.vstack((X_train, X_test))
+            y_train = np.concatenate((y_train, y_test))
+
+        for i in range(X_train.shape[1]):
+            if isinstance(X_train[0, i], str):
+                values = np.unique(X_train[:, i])
+                mapping = {y : j for j, y in enumerate(values)}
+                X_train[:, i] = np.array([mapping[x] for x in X_train[:, i]])
+
+        X_train = X_train.astype(np.float32)
+
+        classes = np.unique(y_train)
+        mapping = {y : i for i, y in enumerate(classes)}
+        y_train = np.array([mapping[y] for y in y_train], dtype=np.int32)
+
+        for it in range(n_splits):
+            yield train_test_split(X_train, y_train, test_size=test_size, random_state=it, stratify=y_train)
+
+
+class ImageSegmentation(CSVDataset):
     """
     Class represents Image Segmentation Dataset.
     Visit http://archive.ics.uci.edu/ml/datasets/image+segmentation for more information
@@ -142,53 +197,21 @@ class ImageSegmentation(Dataset):
     SOURCE = 'http://archive.ics.uci.edu/ml/machine-learning-databases/image/'
     TRAIN = 'segmentation.data'
     TEST = 'segmentation.test'
-    ROWS_TO_SKIP = 6
 
     def __init__(self):
-        self.logger = logging.getLogger(self.__class__.__name__)
-
-    def load(self, data_folder, n_splits: int = 1, test_size: float = None):
-        if n_splits < 1:
-            raise ValueError('n_splits should be positive!')
-
-        if not isinstance(data_folder, Path):
-            data_folder = Path(data_folder)
-
-        if not data_folder.exists():
-            data_folder.mkdir()
-
-        train = data_folder / self.TRAIN
-        test = data_folder / self.TEST
-
-        if not train.exists():
-            url = self.SOURCE + self.TRAIN
-            self.logger.info(f'Downloading train data from {url}')
-            download_file(url, train)
-
-        if not test.exists():
-            url = self.SOURCE + self.TEST
-            self.logger.info(f'Downloading test data from {url}')
-            download_file(url, test)
-
-        df = pd.read_csv(train, header=None, index_col=None, skiprows=self.ROWS_TO_SKIP)
-        features = len(df.columns)
-        X_train, y_train = np.array(df.iloc[:,1:], dtype=np.float32), np.array(df.iloc[:,0])
-
-        df = pd.read_csv(test, header=None, index_col=None, skiprows=self.ROWS_TO_SKIP)
-        X_test, y_test = np.array(df.iloc[:, 1:], dtype=np.float32), np.array(df.iloc[:,0])
-
-        X_train = np.vstack((X_train, X_test))
-        y_train = np.concatenate((y_train, y_test))
-
-        classes = np.unique(y_train)
-        mapping = {y : i for i, y in enumerate(classes)}
-        y_train = np.array([mapping[y] for y in y_train], dtype=np.int32)
-
-        for it in range(n_splits):
-            yield train_test_split(X_train, y_train, test_size=test_size, random_state=it, stratify=y_train)
+        super().__init__(
+            class_name=self.__class__.__name__,
+            source=self.SOURCE,
+            train=self.TRAIN,
+            test=self.TEST,
+            sep=',',
+            skiprows=6,
+            compression=None,
+            label_column=0
+        )
 
 
-class Covertype(Dataset):
+class Covertype(CSVDataset):
     """
     Class represents Covertype Dataset.
     Visit https://archive.ics.uci.edu/ml/datasets/Covertype for more information
@@ -196,40 +219,21 @@ class Covertype(Dataset):
 
     SOURCE = 'https://archive.ics.uci.edu/ml/machine-learning-databases/covtype/'
     TRAIN = 'covtype.data.gz'
-    ROWS_TO_SKIP = 0
 
     def __init__(self):
-        self.logger = logging.getLogger(self.__class__.__name__)
-
-    def load(self, data_folder, n_splits: int = 1, test_size: float = None):
-        if n_splits < 1:
-            raise ValueError('n_splits should be positive!')
-
-        if not isinstance(data_folder, Path):
-            data_folder = Path(data_folder)
-
-        if not data_folder.exists():
-            data_folder.mkdir()
-
-        train = data_folder / self.TRAIN
-
-        if not train.exists():
-            url = self.SOURCE + self.TRAIN
-            self.logger.info(f'Downloading train data from {url}')
-            download_file(url, train)
-
-        df = pd.read_csv(train, header=None, index_col=None, skiprows=self.ROWS_TO_SKIP, compression='gzip')
-        X_train, y_train = np.array(df.iloc[:,:-1], dtype=np.float32), np.array(df.iloc[:,-1])
-
-        classes = np.unique(y_train)
-        mapping = {y : i for i, y in enumerate(classes)}
-        y_train = np.array([mapping[y] for y in y_train], dtype=np.int32)
-
-        for it in range(n_splits):
-            yield train_test_split(X_train, y_train, test_size=test_size, random_state=it, stratify=y_train)
+        super().__init__(
+            class_name=self.__class__.__name__,
+            source=self.SOURCE,
+            train=self.TRAIN,
+            test=None,
+            sep=',',
+            skiprows=0,
+            compression='gzip',
+            label_column=-1
+        )
 
 
-class WinequalityWhite(Dataset):
+class WinequalityWhite(CSVDataset):
     """
     Class represents Wine Quality (White) Dataset.
     Visit https://archive.ics.uci.edu/ml/datasets/wine+quality for more information
@@ -237,40 +241,21 @@ class WinequalityWhite(Dataset):
 
     SOURCE = 'https://archive.ics.uci.edu/ml/machine-learning-databases/wine-quality/'
     TRAIN = 'winequality-white.csv'
-    ROWS_TO_SKIP = 1
 
     def __init__(self):
-        self.logger = logging.getLogger(self.__class__.__name__)
-
-    def load(self, data_folder, n_splits: int = 1, test_size: float = None):
-        if n_splits < 1:
-            raise ValueError('n_splits should be positive!')
-
-        if not isinstance(data_folder, Path):
-            data_folder = Path(data_folder)
-
-        if not data_folder.exists():
-            data_folder.mkdir()
-
-        train = data_folder / self.TRAIN
-
-        if not train.exists():
-            url = self.SOURCE + self.TRAIN
-            self.logger.info(f'Downloading train data from {url}')
-            download_file(url, train)
-
-        df = pd.read_csv(train, header=None, index_col=None, skiprows=self.ROWS_TO_SKIP, sep=';')
-        X_train, y_train = np.array(df.iloc[:,:-1], dtype=np.float32), np.array(df.iloc[:,-1])
-
-        classes = np.unique(y_train)
-        mapping = {y : i for i, y in enumerate(classes)}
-        y_train = np.array([mapping[y] for y in y_train], dtype=np.int32)
-
-        for it in range(n_splits):
-            yield train_test_split(X_train, y_train, test_size=test_size, random_state=it, stratify=y_train)
+        super().__init__(
+            class_name=self.__class__.__name__,
+            source=self.SOURCE,
+            train=self.TRAIN,
+            test=None,
+            sep=';',
+            skiprows=1,
+            compression=None,
+            label_column=-1
+        )
 
 
-class Abalone(Dataset):
+class Abalone(CSVDataset):
     """
     Class represents Abalone Dataset.
     Visit https://archive.ics.uci.edu/ml/datasets/Abalone for more information
@@ -278,37 +263,15 @@ class Abalone(Dataset):
 
     SOURCE = 'https://archive.ics.uci.edu/ml/machine-learning-databases/abalone/'
     TRAIN = 'abalone.data'
-    ROWS_TO_SKIP = 0
 
     def __init__(self):
-        self.logger = logging.getLogger(self.__class__.__name__)
-
-    def load(self, data_folder, n_splits: int = 1, test_size: float = None):
-        if n_splits < 1:
-            raise ValueError('n_splits should be positive!')
-
-        if not isinstance(data_folder, Path):
-            data_folder = Path(data_folder)
-
-        if not data_folder.exists():
-            data_folder.mkdir()
-
-        train = data_folder / self.TRAIN
-
-        if not train.exists():
-            url = self.SOURCE + self.TRAIN
-            self.logger.info(f'Downloading train data from {url}')
-            download_file(url, train)
-
-        df = pd.read_csv(train, header=None, index_col=None, skiprows=self.ROWS_TO_SKIP)
-        for i in range(len(df)):
-            df.iloc[i, 0] = {'M': 0, 'F': 1, 'I': 2}[df.iloc[i, 0]]
-        X_train, y_train = np.array(df.iloc[:,:-1], dtype=np.float32), np.array(df.iloc[:,-1])
-
-
-        classes = np.unique(y_train)
-        mapping = {y : i for i, y in enumerate(classes)}
-        y_train = np.array([mapping[y] for y in y_train], dtype=np.int32)
-
-        for it in range(n_splits):
-            yield train_test_split(X_train, y_train, test_size=test_size, random_state=it, stratify=y_train)
+        super().__init__(
+            class_name=self.__class__.__name__,
+            source=self.SOURCE,
+            train=self.TRAIN,
+            test=None,
+            sep=',',
+            skiprows=0,
+            compression=None,
+            label_column=-1
+        )
