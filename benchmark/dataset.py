@@ -9,6 +9,7 @@ import numpy as np
 from sklearn.datasets import load_svmlight_file
 from sklearn.model_selection import train_test_split
 import pandas as pd
+from scipy.sparse import vstack
 
 from .utils import download_file
 
@@ -121,6 +122,8 @@ class LibsvmDataset(Dataset):
         if test:
             X_test, y_test = load_svmlight_file(str(test))
             X_test, y_test = X_test.toarray(), y_test.astype(np.int32)
+            if X_test.shape[1] < X_train.shape[1]:
+                X_test = np.c_[X_test, np.zeros(X_test.shape[0], X_train.shape[1] - X_test.shape[1])]
             X_test, y_test = self._reduce_classes(X_test, y_test, classes)
             X_train = np.vstack((X_train, X_test))
             y_train = np.concatenate((y_train, y_test))
@@ -171,8 +174,6 @@ class ImageSegmentation(Dataset):
         X_train, y_train = np.array(df.iloc[:,1:], dtype=np.float32), np.array(df.iloc[:,0])
 
         df = pd.read_csv(test, header=None, index_col=None, skiprows=self.ROWS_TO_SKIP)
-        for i in range(len(df.columns), features):
-            df[i] = 0
         X_test, y_test = np.array(df.iloc[:, 1:], dtype=np.float32), np.array(df.iloc[:,0])
 
         X_train = np.vstack((X_train, X_test))
