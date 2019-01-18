@@ -124,6 +124,8 @@ class LibsvmDataset(Dataset):
             X_test, y_test = X_test.toarray(), y_test.astype(np.int32)
             if X_test.shape[1] < X_train.shape[1]:
                 X_test = np.c_[X_test, np.zeros((X_test.shape[0], X_train.shape[1] - X_test.shape[1]))]
+            if X_train.shape[1] < X_test.shape[1]:
+                X_train = np.c_[X_train, np.zeros((X_train.shape[0], X_test.shape[1] - X_train.shape[1]))]
             X_test, y_test = self._reduce_classes(X_test, y_test, classes)
             X_train = np.vstack((X_train, X_test))
             y_train = np.concatenate((y_train, y_test))
