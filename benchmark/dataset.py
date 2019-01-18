@@ -9,7 +9,6 @@ import numpy as np
 from sklearn.datasets import load_svmlight_file
 from sklearn.model_selection import train_test_split
 import pandas as pd
-from scipy.sparse import vstack
 
 from .utils import download_file
 
@@ -136,8 +135,8 @@ class LibsvmDataset(Dataset):
 
 class ImageSegmentation(Dataset):
     """
-    Class represents MNIST Dataset.
-    Visit http://yann.lecun.com/exdb/mnist/ for more information
+    Class represents Image Segmentation Dataset.
+    Visit http://archive.ics.uci.edu/ml/datasets/image+segmentation for more information
     """
 
     SOURCE = 'http://archive.ics.uci.edu/ml/machine-learning-databases/image/'
@@ -191,8 +190,8 @@ class ImageSegmentation(Dataset):
 
 class Covertype(Dataset):
     """
-    Class represents MNIST Dataset.
-    Visit http://yann.lecun.com/exdb/mnist/ for more information
+    Class represents Covertype Dataset.
+    Visit https://archive.ics.uci.edu/ml/datasets/Covertype for more information
     """
 
     SOURCE = 'https://archive.ics.uci.edu/ml/machine-learning-databases/covtype/'
@@ -232,8 +231,8 @@ class Covertype(Dataset):
 
 class WinequalityWhite(Dataset):
     """
-    Class represents MNIST Dataset.
-    Visit http://yann.lecun.com/exdb/mnist/ for more information
+    Class represents Wine Quality (White) Dataset.
+    Visit https://archive.ics.uci.edu/ml/datasets/wine+quality for more information
     """
 
     SOURCE = 'https://archive.ics.uci.edu/ml/machine-learning-databases/wine-quality/'
@@ -273,8 +272,8 @@ class WinequalityWhite(Dataset):
 
 class Abalone(Dataset):
     """
-    Class represents MNIST Dataset.
-    Visit http://yann.lecun.com/exdb/mnist/ for more information
+    Class represents Abalone Dataset.
+    Visit https://archive.ics.uci.edu/ml/datasets/Abalone for more information
     """
 
     SOURCE = 'https://archive.ics.uci.edu/ml/machine-learning-databases/abalone/'
