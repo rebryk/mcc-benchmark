@@ -167,9 +167,12 @@ class ImageSegmentation(Dataset):
             download_file(url, test)
 
         df = pd.read_csv(train, header=None, index_col=None, skiprows=self.ROWS_TO_SKIP)
+        features = len(df.columns)
         X_train, y_train = np.array(df.iloc[:,1:], dtype=np.float32), np.array(df.iloc[:,0])
 
         df = pd.read_csv(test, header=None, index_col=None, skiprows=self.ROWS_TO_SKIP)
+        for i in range(len(df.columns), features):
+            df[i] = 0
         X_test, y_test = np.array(df.iloc[:, 1:], dtype=np.float32), np.array(df.iloc[:,0])
 
         X_train = np.vstack((X_train, X_test))
