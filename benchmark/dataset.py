@@ -145,13 +145,13 @@ class CSVDataset(Dataset):
         self.logger = logging.getLogger(class_name)
 
     def _load_csv(self, data_folder, dataset):
-        dataset = data_folder / dataset
-        if not dataset.exists():
+        dataset_path = data_folder / dataset
+        if not dataset_path.exists():
             url = self.source + dataset
             self.logger.info(f'Downloading dataset from {url}')
-            download_file(url, dataset)
+            download_file(url, dataset_path)
 
-        df = pd.read_csv(dataset, header=None, index_col=None, sep=self.sep, skiprows=self.skiprows, compression=self.compression)
+        df = pd.read_csv(dataset_path, header=None, index_col=None, sep=self.sep, skiprows=self.skiprows, compression=self.compression)
         X, y = np.array(df.drop(df.columns[[self.label_column]], axis=1)), np.array(df.iloc[:,self.label_column])
         return X, y
 
