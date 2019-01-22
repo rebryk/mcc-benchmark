@@ -9,7 +9,7 @@ from benchmark.model.model import Model
 
 class FMCBoosting(Model):
     def __init__(self,
-                 path: str = None,
+                 path: str = 'fmcb.jar',
                  n_iter: int = 2000,
                  lr: float = 5,
                  gamma: float = 100,
