@@ -117,9 +117,6 @@ class Experiment:
         if valid_size and inspect.signature(model_class.fit).parameters.get('eval_set') is not None:
             fit_params['eval_set'] = [(X_valid, y_valid)]
 
-        # TODO: remove
-        fit_params['eval_set'] = [(X_test, y_test)]
-
         if selection_params:
             self.logger.info('Searching the best parameters...')
 
