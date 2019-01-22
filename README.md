@@ -152,6 +152,7 @@ Currently we support some multiclass classification datasets from [LIBSVM](https
 * [`image_segmentation`](http://archive.ics.uci.edu/ml/datasets/image+segmentation)
 * [`covertype`](https://archive.ics.uci.edu/ml/datasets/Covertype)
 * [`winequality_white`](https://archive.ics.uci.edu/ml/datasets/wine+quality)
+* [`abalone`](https://archive.ics.uci.edu/ml/datasets/abalone)
 
 ## License
 [MIT](LICENSE)
