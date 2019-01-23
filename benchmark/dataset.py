@@ -76,7 +76,7 @@ class LibsvmDataset(Dataset):
         classes, cnt = np.unique(y, return_counts=True)
 
         for clazz in classes:
-            fraction = np.random.random()
+            fraction = 0.5 # np.random.random()
             count = max(int(cnt[clazz] * fraction), 2)
             result.append(np.random.choice(indices[y == clazz], size=count, replace=False))
 
