@@ -2,7 +2,7 @@ import logging
 
 from catboost import CatBoostClassifier
 from lightgbm import LGBMClassifier
-from sklearn.ensemble import RandomForestClassifier
+from sklearn.ensemble import RandomForestClassifier, AdaBoostClassifier
 from sklearn.model_selection import GridSearchCV, RandomizedSearchCV
 from sklearn.naive_bayes import GaussianNB
 from sklearn.neighbors import KNeighborsClassifier
@@ -10,6 +10,7 @@ from sklearn.svm import SVC
 from sklearn.tree import DecisionTreeClassifier
 from sklearn_extensions.extreme_learning_machines import ELMClassifier
 from xgboost import XGBClassifier
+from logitboost import LogitBoost
 
 from .dataset import Dataset
 from .dataset import LibsvmDataset
@@ -45,9 +46,7 @@ _datasets.pendigits = LibsvmDataset('pendigits', 'pendigits.t')
 _datasets.image_segmentation = ImageSegmentation()
 _datasets.covertype = Covertype()
 _datasets.winequality_white = WinequalityWhite()
-
-# Some classes consist of only one sample
-# _datasets.abalone = Abalone()
+_datasets.abalone = Abalone()
 
 _models = AttributeDict()
 _models.svm = SVC
@@ -60,6 +59,8 @@ _models.cat = CatBoostClassifier
 _models.lgbm = LGBMClassifier
 _models.elm = ELMClassifier
 _models.fmcb = FMCBoosting
+_models.logitboost = LogitBoost
+_models.samme = AdaBoostClassifier
 
 _selection_methods = AttributeDict()
 _selection_methods.grid_search_cv = GridSearchCV

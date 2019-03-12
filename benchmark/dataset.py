@@ -122,9 +122,9 @@ class LibsvmDataset(Dataset):
             X_test, y_test = load_svmlight_file(str(test))
             X_test, y_test = X_test.toarray(), y_test.astype(np.int32)
             if X_test.shape[1] < X_train.shape[1]:
-                X_test = np.c_[X_test, np.zeros((X_test.shape[0], X_train.shape[1] - X_test.shape[1]))]
+                X_train = X_train[:,:X_test.shape[1]]
             if X_train.shape[1] < X_test.shape[1]:
-                X_train = np.c_[X_train, np.zeros((X_train.shape[0], X_test.shape[1] - X_train.shape[1]))]
+                X_test = X_test[:,:X_train.shape[1]]
             X_test, y_test = self._reduce_classes(X_test, y_test, classes)
             X_train = np.vstack((X_train, X_test))
             y_train = np.concatenate((y_train, y_test))
@@ -153,6 +153,22 @@ class CSVDataset(Dataset):
 
         df = pd.read_csv(dataset_path, header=None, index_col=None, sep=self.sep, skiprows=self.skiprows, compression=self.compression)
         X, y = np.array(df.drop(df.columns[[self.label_column]], axis=1)), np.array(df.iloc[:,self.label_column])
+
+        classes = np.unique(y)
+        for c in classes:
+            cnt = 0
+            for i in range(len(y)):
+                if y[i] == c:
+                    cnt += 1
+            if cnt > 1:
+                continue
+
+            for i in range(len(y)):
+                if y[i] == c:
+                    X = np.delete(X, i, axis=0)
+                    y = np.delete(y, i, axis=0)
+                    break
+
         return X, y
 
     def load(self, data_folder, n_splits: int = 1, test_size: float = None):
