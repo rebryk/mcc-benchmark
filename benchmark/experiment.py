@@ -7,6 +7,7 @@ from datetime import datetime
 from pathlib import Path
 
 import numpy as np
+from sklearn.metrics import accuracy_score, f1_score
 from sklearn.model_selection import train_test_split
 
 from benchmark import get_selection_method, get_model_class, get_dataset
@@ -134,7 +135,7 @@ class Experiment:
 
             with redirect_stdout(self.logger):
                 with Timer('Searching time', self.logger) as timer:
-                    selection.fit(X, y, **fit_params) 
+                    selection.fit(X, y, **fit_params)
 
             result.search_time = timer.total_seconds()
             self.logger.info('Grid scores on validate set:')
@@ -158,20 +159,29 @@ class Experiment:
         result.train_time = timer.total_seconds()
 
         with Timer('Prediction time (train)') as timer:
-            result.score_train = round(model.score(X_train, y_train), self.PRECISION)
+            y_pred = model.predict(X_train)
+            result.score_train = round(accuracy_score(y_train, y_pred), self.PRECISION)
+            macro_f1 = round(f1_score(y_train, y_pred, average='macro'), self.PRECISION)
+
         result.pred_time_train = timer.total_seconds()
-        self.logger.info(f'Train score:\t{result.score_train:0.4f}')
+        self.logger.info(f'Train score:\t{result.score_train:0.4f}\t(f1: {macro_f1:0.4f})')
 
         if valid_size:
             with Timer('Prediction time (valid)', self.logger) as timer:
-                result.score_valid = round(model.score(X_valid, y_valid), self.PRECISION)
+                y_pred = model.predict(X_valid)
+                result.score_valid = round(accuracy_score(y_valid, y_pred), self.PRECISION)
+                macro_f1 = round(f1_score(y_valid, y_pred, average='macro'), self.PRECISION)
+
             result.pred_time_valid = timer.total_seconds()
-            self.logger.info(f'Valid score:\t{result.score_valid:0.4f}')
+            self.logger.info(f'Valid score:\t{result.score_valid:0.4f}\t(f1: {macro_f1:0.4f})')
 
         with Timer('Prediction time (test)', self.logger) as timer:
-            result.score_test = round(model.score(X_test, y_test), self.PRECISION)
+            y_pred = model.predict(X_test)
+            result.score_test = round(accuracy_score(y_test, y_pred), self.PRECISION)
+            macro_f1 = round(f1_score(y_test, y_pred, average='macro'), self.PRECISION)
+
         result.pred_time_test = timer.total_seconds()
-        self.logger.info(f'Test score:\t{result.score_test:0.4f}')
+        self.logger.info(f'Test score:\t{result.score_test:0.4f}\t(f1: {macro_f1:0.4f})')
 
         return result
 
