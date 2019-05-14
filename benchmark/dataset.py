@@ -1,5 +1,4 @@
 import logging
-import math
 from abc import ABC, abstractmethod
 from pathlib import Path
 from typing import Generator
@@ -291,3 +290,114 @@ class Abalone(CSVDataset):
             compression=None,
             label_column=-1
         )
+
+
+class CSVDataset(Dataset):
+    def __init__(self, class_name, source, train, test, sep, skiprows, compression, label_column):
+        self.source = source
+        self.train = train
+        self.test = test
+        self.sep = sep
+        self.skiprows = skiprows
+        self.compression = compression
+        self.label_column = label_column
+        self.logger = logging.getLogger(class_name)
+
+    def _load_csv(self, data_folder, dataset):
+        dataset_path = data_folder / dataset
+        if not dataset_path.exists():
+            url = self.source + dataset
+            self.logger.info(f'Downloading dataset from {url}')
+            download_file(url, dataset_path)
+
+        df = pd.read_csv(dataset_path, header=None, index_col=None, sep=self.sep, skiprows=self.skiprows,
+                         compression=self.compression)
+        X, y = np.array(df.drop(df.columns[[self.label_column]], axis=1)), np.array(df.iloc[:, self.label_column])
+
+        classes = np.unique(y)
+        for c in classes:
+            cnt = 0
+            for i in range(len(y)):
+                if y[i] == c:
+                    cnt += 1
+            if cnt > 1:
+                continue
+
+            for i in range(len(y)):
+                if y[i] == c:
+                    X = np.delete(X, i, axis=0)
+                    y = np.delete(y, i, axis=0)
+                    break
+
+        return X, y
+
+    def load(self, data_folder, n_splits: int = 1, test_size: float = None):
+        if n_splits < 1:
+            raise ValueError('n_splits should be positive!')
+
+        if not isinstance(data_folder, Path):
+            data_folder = Path(data_folder)
+
+        if not data_folder.exists():
+            data_folder.mkdir()
+
+        X_train, y_train = self._load_csv(data_folder, self.train)
+
+        if self.test is not None:
+            X_test, y_test = self._load_csv(data_folder, self.test)
+            X_train = np.vstack((X_train, X_test))
+            y_train = np.concatenate((y_train, y_test))
+
+        for i in range(X_train.shape[1]):
+            if isinstance(X_train[0, i], str):
+                values = np.unique(X_train[:, i])
+                mapping = {y: j for j, y in enumerate(values)}
+                X_train[:, i] = np.array([mapping[x] for x in X_train[:, i]])
+
+        X_train = X_train.astype(np.float32)
+
+        classes = np.unique(y_train)
+        mapping = {y: i for i, y in enumerate(classes)}
+        y_train = np.array([mapping[y] for y in y_train], dtype=np.int32)
+
+        for it in range(n_splits):
+            yield train_test_split(X_train, y_train, test_size=test_size, random_state=it, stratify=y_train)
+
+
+class IMAT(Dataset):
+    SOURCE = 'eranik.me/~education/machine-learning/datasets/'
+
+    def __init__(self, train: str):
+        self.train = train
+        self.logger = logging.getLogger(self.__class__.__name__)
+
+    def load(self, data_folder, n_splits: int = 1, test_size: float = None):
+        if n_splits < 1:
+            raise ValueError('n_splits should be positive!')
+
+        if not isinstance(data_folder, Path):
+            data_folder = Path(data_folder)
+
+        if not self.train:
+            raise ValueError('Train argument is not specified!')
+
+        if not data_folder.exists():
+            data_folder.mkdir()
+
+        train = data_folder / self.train
+        if not train.exists():
+            url = self.SOURCE + self.train
+            self.logger.info(f'Downloading dataset from {url}')
+            download_file(url, train)
+
+        if not train.exists():
+            raise ValueError('Train dataset does not exist')
+
+        X_train, y_train = load_svmlight_file(str(train))
+        _, y_train = np.unique(np.round(y_train), return_inverse=True)
+        X_train, y_train = X_train.toarray(), y_train.astype(np.int32)
+
+        assert len(np.unique(y_train)) == 5
+
+        for it in range(n_splits):
+            yield train_test_split(X_train, y_train, test_size=test_size, random_state=it, stratify=y_train)

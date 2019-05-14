@@ -18,6 +18,7 @@ from .dataset import ImageSegmentation
 from .dataset import Covertype
 from .dataset import WinequalityWhite
 from .dataset import Abalone
+from .dataset import IMAT
 from .model import FMCBoosting
 from .model import Model
 from .utils import AttributeDict
@@ -27,6 +28,7 @@ logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s
                     level=logging.INFO)
 
 _datasets = AttributeDict()
+_datasets.imat2009 = IMAT('imat2009.bz2')
 _datasets.iris = LibsvmDataset('iris.scale')
 _datasets.wine = LibsvmDataset('wine.scale')
 _datasets.glass = LibsvmDataset('glass.scale')
