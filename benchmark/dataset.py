@@ -365,7 +365,7 @@ class CSVDataset(Dataset):
 
 
 class IMAT(Dataset):
-    SOURCE = 'eranik.me/~education/machine-learning/datasets/'
+    SOURCE = 'http://eranik.me/~education/machine-learning/datasets/'
 
     def __init__(self, train: str):
         self.train = train
